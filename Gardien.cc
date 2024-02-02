@@ -26,6 +26,3 @@ bool Gardien::isAlive(){
     return this->alive;
 }
 
-bool Gardien::move(double dx, double dy){
-    
-}
