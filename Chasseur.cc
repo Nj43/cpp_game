@@ -1,4 +1,8 @@
 #include "Chasseur.h"
+#include "Gardien.h"
+#include "Labyrinthe.h"
+#include <iostream>
+using namespace std;
 
 /*
  *	Tente un deplacement.
@@ -30,7 +34,7 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 }
 
 /*
- *	Fait bouger la boule de feu (ceci est une exemple, à vous de traiter les collisions spécifiques...)
+ *	Fait bouger la boule de feu (ceci est une exemple, ï¿½ vous de traiter les collisions spï¿½cifiques...)
  */
 
 bool Chasseur::process_fireball (float dx, float dy)
@@ -46,14 +50,40 @@ bool Chasseur::process_fireball (float dx, float dy)
 		message ("Woooshh ..... %d", (int) dist2);
 		// il y a la place.
 		return true;
+	}else{
+		// collision... (if a gardien is touched then we have to decrease its LP(or kill it))
+		for (int i = 1; i < this->_l->_nguards; i++)
+		{
+			float x_place = (this->_l->_guards[i]->_x - _fb -> get_x ())/ Environnement::scale;
+			float y_place = (this->_l->_guards[i]->_y - _fb -> get_y ())/ Environnement::scale;
+			/*
+			cout << abs(_fb->get_x() - this->_l->_guards[i]->_x) << "\t";
+			cout << abs(_fb->get_y() - this->_l->_guards[i]->_y) << "\n";
+			*/
+			cout << "------------------------" << "\n";
+			cout << x_place << "\t";
+			cout << y_place << "\n";
+			
+			//we get the gardien that is at (x,y) which means that it is hit by the fireball
+			if ((abs(x_place) <= 1.5) && (abs(y_place) <= 1.5) &&  (((Gardien*)(this->_l->_guards[i]))->isAlive() == true))
+			{
+				//message("hit %d", i);
+				((Gardien*)(this->_l->_guards[i]))->decrease_LP();
+				
+			}
+			
+		}
+		
 	}
-	// collision...
+	
 	// calculer la distance maximum en ligne droite.
 	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
 	_wall_hit -> play (1. - dist2/dmax2);
-	message ("Booom...");
+	//message ("Booom...");
 	return false;
+
+
 }
 
 /*
@@ -65,14 +95,14 @@ void Chasseur::fire (int angle_vertical)
 	message ("Woooshh...");
 	_hunter_fire -> play ();
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
-				 /* angles de visée */ angle_vertical, _angle);
+				 /* angles de visï¿½e */ angle_vertical, _angle);
 }
 
 /*
- *	Clic droit: par défaut fait tomber le premier gardien.
+ *	Clic droit: par dï¿½faut fait tomber le premier gardien.
  *
  *	Inutile dans le vrai jeu, mais c'est juste pour montrer
- *	une utilisation des fonctions « tomber » et « rester_au_sol »
+ *	une utilisation des fonctions ï¿½ tomber ï¿½ et ï¿½ rester_au_sol ï¿½
  */
 
 void Chasseur::right_click (bool shift, bool control)

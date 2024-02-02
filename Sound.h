@@ -11,8 +11,8 @@
 #include <stdlib.h>
 
 class Sound {
-	char filename [256];		// nom du fichier contenant le son à jouer.
-	int	error;					// core d'erreur de 'system', non utilisé.
+	char filename [256];		// nom du fichier contenant le son ï¿½ jouer.
+	int	error;					// core d'erreur de 'system', non utilisï¿½.
 public:
 	Sound (const char* name) { sprintf (filename, "%s", name); }
 	// fait jouer le son.
@@ -20,7 +20,7 @@ public:
 		char	cmd [512];
 
 #ifdef __APPLE__
-		sprintf (cmd, "afplay -v %g %s &", volume*5, filename);	// 5 semble être la valeur maximale.
+		sprintf (cmd, "afplay -v %g %s &", volume*5, filename);	// 5 semble ï¿½tre la valeur maximale.
 #else
 		sprintf (cmd, "paplay --volume=%d %s &", (int) (volume*65536), filename);
 #endif
@@ -55,7 +55,7 @@ private:
 	void init (void);
 public:
 	Sound (const char*);							// charge un fichier de sons.
-	~Sound ();										// libère les échantillons.
+	~Sound ();										// libï¿½re les ï¿½chantillons.
 	void play (float volume =1., float pan =0.);	// le fait jouer.
 };
 #endif

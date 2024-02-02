@@ -42,7 +42,7 @@ else
 ifeq '$(OS)' "Ubuntu"
 #
 #	Compilation on Linux for Linux (Ubuntu)
-#
+
 FLTK_VERSION = fltk-1.4-ubuntu
 CXX = g++
 LD = ld
@@ -74,13 +74,13 @@ endif
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 #
-#	Début du Makefile propre au projet
+#	Dï¿½but du Makefile propre au projet
 #
 
-SRC	=	Labyrinthe.cc Chasseur.cc
+SRC	=	Labyrinthe.cc Chasseur.cc Gardien.cc
 H	=	Labyrinthe.h Chasseur.h FireBall.h Sound.h Environnement.h \
 		Gardien.h Mover.h
-O	=	Labyrinthe.o Chasseur.o
+O	=	Labyrinthe.o Chasseur.o Gardien.cc
 
 ifeq '$(OS)' "Darwin"
 ifeq '$(shell uname -p)' "arm"
@@ -112,3 +112,4 @@ clean:
 
 Labyrinthe.o:	Labyrinthe.h Environnement.h Chasseur.h Mover.h Gardien.h
 Chasseur.o:		Chasseur.cc Chasseur.h Mover.h Sound.h
+Gardien.cc:		Chasseur.cc Chasseur.h Mover.h Sound.h

@@ -6,11 +6,18 @@
 class Labyrinthe;
 
 class Gardien : public Mover {
-public:
-	Gardien (Labyrinthe* l, const char* modele) : Mover (120, 80, l, modele)
-	{}
+private :
+	int _LP;
+	bool alive;
 
-	// mon gardien pense très mal!
+public:
+	Gardien (Labyrinthe* l, const char* modele, int LP) : Mover (120, 80, l, modele)
+	{
+		_LP=LP;
+		alive = true;
+	}
+
+	// mon gardien pense trï¿½s mal!
 	void update (void) {};
 	// et ne bouge pas!
 	bool move (double dx, double dy) { return false; }
@@ -18,6 +25,11 @@ public:
 	void fire (int angle_vertical) {}
 	// quand a faire bouger la boule de feu...
 	bool process_fireball (float dx, float dy) { return false; }
+	void kill_gardien(void);
+	void decrease_LP(void);
+	bool isAlive(void);
+	
+
 };
 
 #endif
