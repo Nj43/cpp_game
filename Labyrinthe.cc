@@ -9,8 +9,8 @@
 #include <string>
 
 Sound*	Chasseur::_hunter_fire;	// bruit de l'arme du chasseur.
-Sound*	Chasseur::_hunter_hit;	// cri du chasseur touché.
-Sound*	Chasseur::_wall_hit;	// on a tapé un mur.
+Sound*	Chasseur::_hunter_hit;	// cri du chasseur touchï¿½.
+Sound*	Chasseur::_wall_hit;	// on a tapï¿½ un mur.
 
 /*
  *	Pour que l'interface puisse appeler le constucteur de
@@ -23,7 +23,7 @@ Environnement* Environnement::init (char* filename)
 }
 
 /*
- *	EXEMPLE de labyrinthe à taille fixe.
+ *	EXEMPLE de labyrinthe ï¿½ taille fixe.
  */
 
 #define	LAB_WIDTH	100
@@ -56,10 +56,19 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 	std::vector<std::vector<std::vector <int>>> horizontalWalls;
 	std::vector<std::vector<std::vector<int>>> verticalWalls;
 	std::vector<std::vector<std::vector<int>>> Walls;
+
+	std::vector<std::vector<std::vector <int>>> guards; //this is a weird type but because it has to fit the function, I have to add an unnecessary dimension
+	std::vector<std::vector<std::vector <int>>> boxes;
+	//std::vector<std::vector<std::vector <int>>> pictures_a;
+	//std::vector<std::vector<std::vector <int>>> pictures_b;
+	//std::vector<std::vector<std::vector <int>>> treasure;
+	std::vector<std::vector<std::vector <int>>> chasseur_pos;
+	//std::cout<<"Size of Pictures: "<< pictures_a.size()<<std::endl;
 	std::vector<std::vector<int>> plusIndices;
 	int longestRow=0;
+	int guard_counter=0;
 	int lineCounter=0;
-	int plusIndex = 1; //we need to start with 1 to make the % questions work
+	int plusIndex = 0; //we need to start with 1 to make the % questions work
 	//std::vector<std::vector<int>> plusIndices;
 	//int lineCounter=-1;
 
@@ -71,59 +80,61 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 				startSaving = true;
 			}
 			if (startSaving){
-				//for (int i=0; i<line.size(); i++){
-				//	lines.push_back(line[i]);
-				//}
 				lines.push_back(line);
-				//std::vector<int> plusIndices;
    				size_t pos = 0;
    				if(line.size() > longestRow){
    					longestRow=line.size();
    				}
-				//since we are already going line by line, lets select and add the horizontal wall indices
-				//A horizontal wall will be definded by two + symbols, so we need to find them in the line
-				//Now we have all of the + symbol indices stored. A wall is defined by 2 + symbols.
-				//That means, that if we iterate over the + symbols and create walls between every 2 plus symbols
-				//they should reflect the horizontal walls of the labyrinth.
-				//To cound every two + symbols, we instantiate a counter
-
 				
 				while ((pos = line.find('+', pos)) != std::string::npos) {
 				    plusIndices.push_back({static_cast<int>(pos), lineCounter});
-				    //std::cout<<plusIndex<<std::endl;
-				    //std::cout<<line<<std::endl;
-				    //std::cout<<pos<<std::endl;
-				    //std::cout<<plusIndex<<std::endl;
-				    //std::cout<<"twoPlusCounter: "<<twoPlusCounter<<std::endl;
-				    	//we need to check if the next character after a plus is a - symbol, if yes, then there is another wall coming
-				    if(line[pos-1] == '-'){
-						//std::cout<<"Line counter: "<<lineCounter<<std::endl;
-						//for(int i=0; i<plusIndices.size();i++){
-						//	std::cout<<"Elements in vector: "<<plusIndices[i][1]<<std::endl;
-						//}
-						//std::cout<<"Stored indices of plusIndices vector: "<<plusIndices[lineCounter][0]<<std::endl;
-						//std::cout<<"Stored indices: "<<plusIndices[plusIndex-2][1]<<", "<<plusIndices[plusIndex-1][1]<<std::endl;
-						Walls.push_back({plusIndices[plusIndex-2], plusIndices[plusIndex-1]});
+				    if(line[pos-1] == '-' || line[pos-1] == '+' ){
+						Walls.push_back({plusIndices[plusIndex-1], plusIndices[plusIndex]});
 				    }
 				    pos++;
 				    plusIndex++;
 				}
+
+				for (size_t i = 0; i < line.length(); ++i) {
+                	char c = line[i];
+					//std::cout<<c<<std::endl;
+					//	std::cout<<c<<std::endl;
+					if(c=='G'){
+						
+						guards.push_back({{static_cast<int>(i), lineCounter}}); //because we have to fit function signature, this we have an unnecessary dimension, maybe change at end
+						//guard_counter++;
+					}
+					else if(c=='C'){
+						
+						chasseur_pos.push_back({{static_cast<int>(i), lineCounter}}); //because we have to fit function signature, this we have an unnecessary dimension, maybe change at end
+						//guard_counter++;
+					}
+					
+					else if(c=='x'){
+						boxes.push_back({{static_cast<int>(i), lineCounter}});
+					}
+					//else if(line[c]==){
+
+					//}
+					//else if(line[c]==){
+
+					//}
+					
+				}
 				lineCounter++; 
+				//std::cout<<"here"<<std::endl;
 			}
 			
 			
 		}
-		//for (const std::string& line : lines){
-			//std::cout << line << std::endl; 
-		//}
 		file.close();
 	}
 
 	//After reading in all of the hoizontal lines and creating a map with only the verticals left, 
 	//This means we need to iterate over the columns
-	std::cout<<lineCounter<<" "<<longestRow<<std::endl;
+	//std::cout<<lineCounter<<" "<<longestRow<<std::endl;
 	std::vector<std::string> transposedMap=transposeMatrix(lines, lineCounter, longestRow);
-	printMatrix(transposedMap);
+	//printMatrix(transposedMap);
 	//std::cout<<transposedMap[0]<<std::endl;
 
 	for (size_t columnIndex=0; columnIndex < transposedMap.size(); columnIndex++){
@@ -140,7 +151,7 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 		    //std::cout<<plusIndex<<std::endl;
 		    //std::cout<<"twoPlusCounter: "<<twoPlusCounter<<std::endl;
 		    	//we need to check if the next character after a plus is a - symbol, if yes, then there is another wall coming
-		    if(transposedMap[columnIndex][columnPos-1] == '|'){
+		    if(transposedMap[columnIndex][columnPos-1] == '|' || transposedMap[columnIndex][columnPos-1] == '+'){
 				//std::cout<<"Stored indices: "<<columnPlusIndices[columnPlusIndex-2][0]<<", "<<columnPlusIndices[columnPlusIndex-1][0]<<std::endl;
 				Walls.push_back({columnPlusIndices[columnPlusIndex-2], columnPlusIndices[columnPlusIndex-1]});
 		    }
@@ -152,10 +163,11 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 	//for(i=0; i<longestRow; i++){
 
 	//}
-
-	std::cout << "First wall: start x:" << Walls[4][0][0] <<  " start y: " << Walls[4][0][1] << "  end x: " << Walls[4][1][0] << "  end y: " << Walls[4][1][1] << std::endl; //this way we can access the lines
+	std::cout<< "First guard position x: " << guards[0][0][0] << "First guard position y: " << guards[0][0][1] << std::endl;
+	//std::cout << "First wall: start x:" << Walls[4][0][0] <<  " start y: " << Walls[4][0][1] << "  end x: " << Walls[4][1][0] << "  end y: " << Walls[4][1][1] << std::endl; //this way we can access the lines
 	//std::cout << horizontalWalls[0] << std::endl;
-	return {Walls};
+
+	return {Walls, guards, chasseur_pos, boxes};//, treasure, pictures_a, pictures_b};
 }
 void printArray(char** array, int width, int height) {
     for (int y = 0; y < height; ++y) {
@@ -210,7 +222,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	_picts [0]._x2 = 6; _picts [0]._y2 = 0; 
 	_picts [0]._ntex = 0; 
 
-	// la deuxième à une texture différente.
+	// la deuxiï¿½me ï¿½ une texture diffï¿½rente.
 	_picts [1]._x1 = 8; _picts [1]._y1 = 0;
 	_picts [1]._x2 = 10; _picts [1]._y2 = 0; 
 
@@ -222,7 +234,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	_boxes [0]._x = 70; _boxes [0]._y = 12; _boxes [0]._ntex = 0; 
 	_boxes [1]._x = 10; _boxes [1]._y = 5; _boxes [1]._ntex = 0; 
 
-	// mettre une autre texture à la troisième caisse.
+	// mettre une autre texture ï¿½ la troisiï¿½me caisse.
 	sprintf (tmp, "%s/%s", texture_dir, "boite.jpg");
 	_boxes [2]._x = 65; _boxes [2]._y = 22; _boxes [2]._ntex = wall_texture (tmp);
 
@@ -236,7 +248,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	_marks [1]._ntex = wall_texture (tmp);
 
 
-	// 6. créer la matrice représentant le sol du labyrinthe.
+	// 6. crï¿½er la matrice reprï¿½sentant le sol du labyrinthe.
 
 	// 6.1 allouer un tableau de pointeurs de lignes.
 	_data = new char* [width ()];
@@ -258,10 +270,10 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	_data [_boxes [1]._x][_boxes [1]._y] = 1;
 	_data [_boxes [2]._x][_boxes [2]._y] = 1;
 
-	// 8. le trésor.
+	// 8. le trï¿½sor.
 	_treasor._x = 10;
 	_treasor._y = 10;
-	// 8.1 indiquer l'emplacement du trésor au sol.
+	// 8.1 indiquer l'emplacement du trï¿½sor au sol.
 	_data [_treasor._x][_treasor._y] = 1;
 
 	// 9. allouer le chasseur et les 4 gardiens.
@@ -293,16 +305,18 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	std::vector<std::vector<std::vector<std::vector<int>>>> all_data=createLabyrinth(filename);
 
 	//first, place the horizontal walls
-	std::cout<<"Total number of walls: "<<all_data[0].size()<<std::endl;
-	std::cout << "First wall: start x:" << all_data[0][4][0][0] <<  " start y: " << all_data[0][4][0][1] << "  end x: " << all_data[0][4][1][0] << "  end y: " << all_data[0][4][1][1] << std::endl;
-	_nwall = static_cast<int>(all_data[0].size()); 
+	//std::cout<<"Total number of walls: "<<all_data[0].size()<<std::endl;
+	//std::cout << "First wall: start x:" << all_data[0][4][0][0] <<  " start y: " << all_data[0][4][0][1] << "  end x: " << all_data[0][4][1][0] << "  end y: " << all_data[0][4][1][1] << std::endl;
+	_nwall = all_data[0].size(); 
 	_walls = new Wall [_nwall];
 
 	// deux affiches.
 	_npicts = 2;
 	_picts = new Wall [_npicts];
+
 	// 3 caisses.
-	_nboxes = 3;
+	_nboxes = all_data[3].size();
+	std::cout<<"number of boxes"<< _nboxes<<std::endl;
 	_boxes = new Box [_nboxes];
 	// 2 marques au sol.
 	_nmarks = 2;
@@ -314,7 +328,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	_picts [0]._x2 = 6; _picts [0]._y2 = 0; 
 	_picts [0]._ntex = 0; 
 
-	// la deuxième à une texture différente.
+	// la deuxiï¿½me ï¿½ une texture diffï¿½rente.
 	_picts [1]._x1 = 8; _picts [1]._y1 = 0;
 	_picts [1]._x2 = 10; _picts [1]._y2 = 0; 
 
@@ -322,16 +336,19 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");
 	_picts [1]._ntex = wall_texture (tmp);
 
-	// 4. placer les caisses.
-	_boxes [0]._x = 70; _boxes [0]._y = 12; _boxes [0]._ntex = 0; 
-	_boxes [1]._x = 10; _boxes [1]._y = 5; _boxes [1]._ntex = 0; 
 
-	// mettre une autre texture à la troisième caisse.
-	sprintf (tmp, "%s/%s", texture_dir, "boite.jpg");
-	_boxes [2]._x = 65; _boxes [2]._y = 22; _boxes [2]._ntex = wall_texture (tmp);
+
+	//_boxes [0]._x = 0; _boxes [0]._y = 12; _boxes [0]._ntex = 0; 
+	//_boxes [1]._x = 10; _boxes [1]._y = 5; _boxes [1]._ntex = 0; 
+
+
+
+	// mettre une autre texture ï¿½ la troisiï¿½me caisse.
+	//sprintf (tmp, "%s/%s", texture_dir, "boite.jpg");
+	//_boxes [2]._x = 40; _boxes [2]._y = 10; _boxes [2]._ntex = wall_texture (tmp);
 
 	// 5. mettre deux marques au sol.
-	_marks [0]._x = 50; _marks [0]._y = 14;
+	_marks [0]._x = 20; _marks [0]._y = 14;
 	sprintf (tmp, "%s/%s", texture_dir, "p1.gif");
 	_marks [0]._ntex = wall_texture (tmp);
 
@@ -346,9 +363,9 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 		_walls [i]._x1 = all_data[0][i][0][0]; _walls [i]._y1 = all_data[0][i][0][1]; //start point
 		_walls [i]._x2 = all_data[0][i][1][0]; _walls [i]._y2 = all_data[0][i][1][1]; //end point
 		_walls [i]._ntex = 0;
-		if (i==4){
-			std::cout << "First wall: start x:" << all_data[0][i][0][0] <<  " start y: " << all_data[0][i][0][1] << "  end x: " << all_data[0][i][1][0] << "  end y: " << all_data[0][i][1][1] << std::endl;
-		}
+		//if (i==4){
+		//	std::cout << "First wall: start x:" << all_data[0][i][0][0] <<  " start y: " << all_data[0][i][0][1] << "  end x: " << all_data[0][i][1][0] << "  end y: " << all_data[0][i][1][1] << std::endl;
+		//}
 
 		if(heightValue < all_data[0][i][0][1] || heightValue < all_data[0][i][1][1]){
 			if(all_data[0][i][1][1] > all_data[0][i][0][1]){
@@ -369,11 +386,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	}
 
 
-
-
-
-
-	// 6. créer la matrice représentant le sol du labyrinthe.
+	// 6. crï¿½er la matrice reprï¿½sentant le sol du labyrinthe.
 
 	// 6.1 allouer un tableau de pointeurs de lignes.
 	_data = new char* [height ()];
@@ -386,8 +399,11 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
     for (int y = 0; y < height (); ++y) {
         std::memset(_data[y], EMPTY, width () * sizeof(char));
     }
+	
 
+	//draw horizontal lines
     for (int i=0; i < static_cast<int>(all_data[0].size()); i++){
+		std::cout<<"Wall nr "<< i<<std::endl;
     	int x1 = all_data[0][i][0][0];
         int y1 = all_data[0][i][0][1];
         int x2 = all_data[0][i][1][0];
@@ -396,35 +412,68 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
         std::cout<<x1<<" "<<y1<<" "<<x2<<" "<<y2<<" "<<std::endl;
         for (int y = y1; y <= y2; ++y) {
             for (int x = x1; x <= x2; ++x) {
-                _data[y][x] = 1;
+                _data[x][y] = 1;
             }
         }
     }
+
 	//printArray(_data, width () , height ());
 	// 7.1 indiquer l'emplacement des caisses au sol.
-	_data [_boxes [0]._x][_boxes [0]._y] = 1;
-	_data [_boxes [1]._x][_boxes [1]._y] = 1;
-	_data [_boxes [2]._x][_boxes [2]._y] = 1;
 
-	// 8. le trésor.
+	//_data [_boxes [0]._x][_boxes [0]._y] = 1;
+	//_data [_boxes [1]._x][_boxes [1]._y] = 1;
+	//_data [_boxes [2]._x][_boxes [2]._y] = 1;
+
+	for(int i=0; i<_nboxes; i++){
+		std::cout<<"Box coordiante: "<< all_data[3][i][0][0] <<" "<<all_data[3][i][0][1]<<std::endl;
+		_boxes[i]._x=all_data[3][i][0][0]; _boxes[i]._y=all_data[3][i][0][1]; _boxes [i]._ntex = 0;
+		_data [_boxes [i]._x][_boxes [i]._y] = 1 ;
+	}
+
+	// 8. le trï¿½sor.
 	_treasor._x = 10;
 	_treasor._y = 10;
-	// 8.1 indiquer l'emplacement du trésor au sol.
+	// 8.1 indiquer l'emplacement du trï¿½sor au sol.
 	_data [_treasor._x][_treasor._y] = 1;
 
 	// 9. allouer le chasseur et les 4 gardiens.
-	_nguards = 5;
+	std::cout<<"Number of Guards: "<<all_data[1].size()<<std::endl;
+	_nguards = all_data[1].size() + 1; //get the number of guards
 	_guards = new Mover* [_nguards];
-	_guards [0] = new Chasseur (this);
-	_guards [1] = new Gardien (this, "Lezard");
-	_guards [2] = new Gardien (this, "Blade"); _guards [2] -> _x = 90.; _guards [2] -> _y = 70.;
-	_guards [3] = new Gardien (this, "Serpent"); _guards [3] -> _x = 60.; _guards [3] -> _y = 10.;
-	_guards [4] = new Gardien (this, "Samourai"); _guards [4] -> _x = 130.; _guards [4] -> _y = 100.;
+	_guards [0] = new Chasseur (this); _guards [0]; //-> _x=static_cast<float>(all_data[2][0][0][1]);static_cast<float>(all_data[2][0][0][0]);
+	//_data [(int)(_guards [0] -> _x/scale)][(int)(_guards [0] -> _y/scale)] = 1;
+
+	
+	
+	for (int g = 1; g < _nguards; g++){
+		//std::cout<<static_cast<float>(all_data[1][g-1][0][0])<<std::endl;
+		//std::cout<<static_cast<float>(all_data[1][g-1][0][1])<<std::endl;
+		std::cout<<"Scale: "<<scale<<std::endl;
+		_guards[g] = new Gardien (this, "Lezard"); _guards[g] -> _x = scale*static_cast<float>(all_data[1][g-1][0][0]); _guards[g] -> _y = scale*static_cast<float>(all_data[1][g-1][0][1]);
+		
+		std::cout<<(int)(_guards[g])->_x<<std::endl;
+		std::cout<<(int)(_guards[g])->_y<<std::endl;
+		_data [(int)(_guards[g]->_x/scale)][(int)(_guards[g]->_y/scale)] = 1;
+		//std::cout<<(int)(_guards [g] -> _x )<<std::endl;
+		//std::cout<<(int)(_guards [g] -> _y )<<std::endl;
+	}
+	printArray(_data, width () , height ());
+	
+
+	//std::cout<<(int)(_guards[1] -> _x) <<std::endl;
+	//std::cout<<static_cast<float>(all_data[1][0][0][1])<<std::endl;
+	//_guards [1] = new Gardien (this, "Lezard");_guards [1] -> _x = static_cast<float>(all_data[1][0][0][0]); _guards [1] -> _y = static_cast<float>(all_data[1][0][0][1]);
+	
+	
+	//_guards [2] = new Gardien (this, "Blade"); _guards [2] -> _x = 90.; _guards [2] -> _y = 70.;
+	//_guards [3] = new Gardien (this, "Serpent"); _guards [3] -> _x = 60.; _guards [3] -> _y = 10.;
+	//_guards [4] = new Gardien (this, "Samourai"); _guards [4] -> _x = 130.; _guards [4] -> _y = 100.;
 
 	// 9.1 indiquer l'emplacement des gardiens au sol.
-	_data [(int)(_guards [1] -> _x / scale)][(int)(_guards [1] -> _y / scale)] = 1;
-	_data [(int)(_guards [2] -> _x / scale)][(int)(_guards [2] -> _y / scale)] = 1;
-	_data [(int)(_guards [3] -> _x / scale)][(int)(_guards [3] -> _y / scale)] = 1;
-	_data [(int)(_guards [4] -> _x / scale)][(int)(_guards [4] -> _y / scale)] = 1;
+	//_data [(int)(_guards [1] -> _x / scale)][(int)(_guards [1] -> _y / scale )] = 1;
+	std::cout<<(int)(_guards [1] -> _x / scale)<<std::endl;
+	//_data [(int)(_guards [2] -> _x / scale)][(int)(_guards [2] -> _y / scale)] = 1;
+	//_data [(int)(_guards [3] -> _x / scale)][(int)(_guards [3] -> _y / scale)] = 1;
+	//_data [(int)(_guards [4] -> _x / scale)][(int)(_guards [4] -> _y / scale)] = 1;
 	
 }
