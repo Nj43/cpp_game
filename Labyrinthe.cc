@@ -552,7 +552,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 		//std::cout<<(int)(_guards [g] -> _x )<<std::endl;
 		//std::cout<<(int)(_guards [g] -> _y )<<std::endl;
 	}
-	//printArray(_data, width () , height ());
+	printArray(_data, width () , height ());
 	
 
 	//std::cout<<(int)(_guards[1] -> _x) <<std::endl;
