@@ -544,7 +544,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 		//std::cout<<static_cast<float>(all_data[1][g-1][0][0])<<std::endl;
 		//std::cout<<static_cast<float>(all_data[1][g-1][0][1])<<std::endl;
 		//std::cout<<"Scale: "<<scale<<std::endl;
-		_guards[g] = new Gardien (this, "Lezard", 100); _guards[g] -> _x = scale*static_cast<float>(all_data[1][g-1][0][0]); _guards[g] -> _y = scale*static_cast<float>(all_data[1][g-1][0][1]);
+		_guards[g] = new Gardien (this, "Lezard", 110); _guards[g] -> _x = scale*static_cast<float>(all_data[1][g-1][0][0]); _guards[g] -> _y = scale*static_cast<float>(all_data[1][g-1][0][1]);
 		
 		//std::cout<<(int)(_guards[g])->_x<<std::endl;
 		//std::cout<<(int)(_guards[g])->_y<<std::endl;
@@ -552,7 +552,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 		//std::cout<<(int)(_guards [g] -> _x )<<std::endl;
 		//std::cout<<(int)(_guards [g] -> _y )<<std::endl;
 	}
-	//printArray(_data, width () , height ());
+	printArray(_data, width () , height ());
 	
 
 	//std::cout<<(int)(_guards[1] -> _x) <<std::endl;
