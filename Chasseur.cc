@@ -31,6 +31,9 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 	_hunter_hit = new Sound ("sons/hunter_hit.wav");
 	if (_wall_hit == 0)
 		_wall_hit = new Sound ("sons/hit_wall.wav");
+
+	this->_LP = 200;
+	this->alive = true;
 }
 
 /*
@@ -44,6 +47,9 @@ bool Chasseur::process_fireball (float dx, float dy)
 	float	y = (_y - _fb -> get_y ()) / Environnement::scale;
 	float	dist2 = x*x + y*y;
 	// on bouge que dans le vide!
+	//cout << x << "\n";
+	//cout << y << "\n";
+
 	if (EMPTY == _l -> data ((int)((_fb -> get_x () + dx) / Environnement::scale),
 							 (int)((_fb -> get_y () + dy) / Environnement::scale)))
 	{
@@ -59,11 +65,11 @@ bool Chasseur::process_fireball (float dx, float dy)
 			/*
 			cout << abs(_fb->get_x() - this->_l->_guards[i]->_x) << "\t";
 			cout << abs(_fb->get_y() - this->_l->_guards[i]->_y) << "\n";
-			*/
+			
 			cout << "------------------------" << "\n";
 			cout << x_place << "\t";
 			cout << y_place << "\n";
-			
+			*/
 			//we get the gardien that is at (x,y) which means that it is hit by the fireball
 			if ((abs(x_place) <= 1.5) && (abs(y_place) <= 1.5) &&  (((Gardien*)(this->_l->_guards[i]))->isAlive() == true))
 			{
@@ -111,4 +117,9 @@ void Chasseur::right_click (bool shift, bool control)
 		_l -> _guards [1] -> rester_au_sol ();
 	else
 		_l -> _guards [1] -> tomber ();
+}
+
+
+bool Chasseur::isAlive(){
+	return this->alive;
 }
