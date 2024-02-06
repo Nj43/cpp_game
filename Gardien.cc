@@ -105,4 +105,7 @@ bool Gardien::process_fireball (float dx, float dy)
 	return false;
 }
 
+bool Gardien::see_chasseur() :
+	print("ok")
+
 
