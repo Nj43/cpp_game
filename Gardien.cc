@@ -51,8 +51,6 @@ void Gardien::fire(int angle_vertical){
     float theta = -std::atan2((_l->_guards[0]->_x - _x),(_l->_guards[0]->_y - _y));
 	this->_angle = (180 * theta) / M_PI;
     
-    //cout << see_chasseur() << "\n";
-   
     //if the gardien sees the hunter
     //cout << (std::chrono::system_clock::now() -_lastFB).count() << "\n";
     std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _lastFB;
@@ -106,46 +104,5 @@ bool Gardien::process_fireball (float dx, float dy)
 	//message ("Booom...");
 	return false;
 }
-
-
-bool Gardien::see_chasseur(){
-
-	int x_gardien = this->_x / Environnement::scale;
-	int y_gardien = this->_y / Environnement::scale;
-
-	int x_chasseur = this->_l->_guards[0]->_x / Environnement::scale;
-	int y_chasseur = this->_l->_guards[0]->_y / Environnement::scale;
-
-	// Calcul de la distance entre le gardien et le chasseur
-	int dst = sqrt ( pow ( this->_x - x_chasseur, 2 ) + pow ( this->_y - y_chasseur, 2));
-
-	// Calcul de la portée de vision du gardien
-	double view = 1 * this->_LP;
-    
-	if (dst<view) {
-        
-		//Calcul calcul de l'angle 
-		float theta = std::atan((_l->_guards[0]->_x - _x)/ (_l->_guards[0]->_y - _y));
-	    float angle = (180 * theta) / M_PI;
-		float _x = -sin(angle);
-		float _y = cos(angle);
-
-		float x = x_gardien;
-		float y = y_gardien;
-
-		while (x_chasseur != round(x) || y_chasseur != round(y)) 
-		{
-			if (_l->data(round(x), round(y)) != EMPTY) return false;
-
-			x += _x;
-			y += _y;
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
 
 
