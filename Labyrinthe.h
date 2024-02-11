@@ -17,6 +17,8 @@ public:
 	{
 		return _data [i][j];
 	}	// retourne la case (i, j).
+	void set_data (int i, int j, char value);
+	
 };
 
 #endif

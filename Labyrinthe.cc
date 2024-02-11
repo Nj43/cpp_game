@@ -544,16 +544,21 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 		//std::cout<<static_cast<float>(all_data[1][g-1][0][0])<<std::endl;
 		//std::cout<<static_cast<float>(all_data[1][g-1][0][1])<<std::endl;
 		//std::cout<<"Scale: "<<scale<<std::endl;
-		_guards[g] = new Gardien (this, "Lezard"); _guards[g] -> _x = scale*static_cast<float>(all_data[1][g-1][0][0]); _guards[g] -> _y = scale*static_cast<float>(all_data[1][g-1][0][1]);
-		
+		if (g%2==0){
+			_guards[g] = new Gardien (this, "Serpent"); _guards[g] -> _x = scale*static_cast<float>(all_data[1][g-1][0][0]); _guards[g] -> _y = scale*static_cast<float>(all_data[1][g-1][0][1]);
+		}
+		else{
+			_guards[g] = new Gardien (this, "Samourai"); _guards[g] -> _x = scale*static_cast<float>(all_data[1][g-1][0][0]); _guards[g] -> _y = scale*static_cast<float>(all_data[1][g-1][0][1]);
+		}
 		//std::cout<<(int)(_guards[g])->_x<<std::endl;
 		//std::cout<<(int)(_guards[g])->_y<<std::endl;
 		_data [(int)(_guards[g]->_x/scale)][(int)(_guards[g]->_y/scale)] = 1;
 		//std::cout<<(int)(_guards [g] -> _x )<<std::endl;
 		//std::cout<<(int)(_guards [g] -> _y )<<std::endl;
 	}
-	printArray(_data, width () , height ());
-	
+	//printArray(_data, width () , height ());
+	std::cout<<"Width: "<<width()<<std::endl;
+	std::cout<<"Height: "<<height()<<std::endl;
 
 	//std::cout<<(int)(_guards[1] -> _x) <<std::endl;
 	//std::cout<<static_cast<float>(all_data[1][0][0][1])<<std::endl;
@@ -571,4 +576,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	//_data [(int)(_guards [3] -> _x / scale)][(int)(_guards [3] -> _y / scale)] = 1;
 	//_data [(int)(_guards [4] -> _x / scale)][(int)(_guards [4] -> _y / scale)] = 1;
 	
+}
+void Labyrinthe::set_data (int i, int j, char value) {
+	if (i >= 0 && i < this->width() && j >= 0 && j < this->height()) this->_data[i][j] = value;
 }
