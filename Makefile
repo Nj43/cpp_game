@@ -74,7 +74,7 @@ endif
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 #
-#	Début du Makefile propre au projet
+#	Dï¿½but du Makefile propre au projet
 #
 
 SRC	=	Labyrinthe.cc Chasseur.cc

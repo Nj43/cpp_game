@@ -1,14 +1,47 @@
 #include "Chasseur.h"
-
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <cstring> 
+#include <string>
+#include <cmath> 
+#include <random>
+class Labyrinthe;
 /*
  *	Tente un deplacement.
  */
 
 bool Chasseur::move_aux (double dx, double dy)
 {
-	if (EMPTY == _l -> data ((int)((_x + dx) / Environnement::scale),
-							 (int)((_y + dy) / Environnement::scale)))
-	{
+	//get the new positions on x and y axis
+	int new_x=(_x+dx)/Environnement::scale;
+	int new_y=(_y+dy)/Environnement::scale;
+
+	//see if we changed our place in the matrix
+	bool changed_x= new_x != (int)(_x/Environnement::scale); 
+	bool changed_y= new_y != (int)(_y/Environnement::scale);
+
+	//check if index in matrix we want to move to is empty
+	bool empty=_l -> data ((int)(new_x),(int)(new_y));
+
+	//we change this function in order to update the matrix
+
+	//if the slot is not empty, we need to find out if it is because of us
+	//or if it is another object
+	if (empty ==1){
+		//If we change our position, we need to update the matrix and we are free to move
+		if((changed_x or changed_y)){
+			((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, 1); //update the new position
+			((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
+			_x += dx;
+			_y += dy;
+			return true;
+		}
+	}
+	//if we are free to move we update the position in the matrix and move
+	else{
+		((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, 1); //update the new position
+		((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
 		_x += dx;
 		_y += dy;
 		return true;
@@ -30,7 +63,7 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 }
 
 /*
- *	Fait bouger la boule de feu (ceci est une exemple, à vous de traiter les collisions spécifiques...)
+ *	Fait bouger la boule de feu (ceci est une exemple, ï¿½ vous de traiter les collisions spï¿½cifiques...)
  */
 
 bool Chasseur::process_fireball (float dx, float dy)
@@ -63,16 +96,17 @@ bool Chasseur::process_fireball (float dx, float dy)
 void Chasseur::fire (int angle_vertical)
 {
 	message ("Woooshh...");
+	//std::cout<<"                                           ("<<_x<<","<<_y<<")"<<std::endl;
 	_hunter_fire -> play ();
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
-				 /* angles de visée */ angle_vertical, _angle);
+				 /* angles de visï¿½e */ angle_vertical, _angle);
 }
 
 /*
- *	Clic droit: par défaut fait tomber le premier gardien.
+ *	Clic droit: par dï¿½faut fait tomber le premier gardien.
  *
  *	Inutile dans le vrai jeu, mais c'est juste pour montrer
- *	une utilisation des fonctions « tomber » et « rester_au_sol »
+ *	une utilisation des fonctions ï¿½ tomber ï¿½ et ï¿½ rester_au_sol ï¿½
  */
 
 void Chasseur::right_click (bool shift, bool control)
