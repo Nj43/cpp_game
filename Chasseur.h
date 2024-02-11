@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include "Mover.h"
 #include "Sound.h"
-#include "Labyrinthe.h"
 
 class Labyrinthe;
 
