@@ -44,11 +44,14 @@ bool Gardien::isAlive(){
 }
 
 void Gardien::update(){
-   this->fire(0);
+    if(see_chasseur()){
+        this->fire(0);
+    }
+   
 }
 
 void Gardien::fire(int angle_vertical){
-    float theta = -std::atan2((_l->_guards[0]->_x - _x),(_l->_guards[0]->_y - _y));
+    float theta = std::atan2((_l->_guards[0]->_x - _x),(_l->_guards[0]->_y - _y));
 	this->_angle = (180 * theta) / M_PI;
     
     //if the gardien sees the hunter
@@ -105,7 +108,31 @@ bool Gardien::process_fireball (float dx, float dy)
 	return false;
 }
 
-bool Gardien::see_chasseur() :
-	print("ok")
+bool Gardien::see_chasseur(){
 
+
+    Mover* hunter = this->_l->_guards[0];
+    int hunterX = hunter->_x / Environnement::scale;
+    int hunterY = hunter->_y / Environnement::scale;
+    float monsterX = this->_x / Environnement::scale;
+    float monsterY = this->_y / Environnement::scale;
+	// Calculate the angle between the monster and the hunter
+    double dx = hunterX - monsterX;
+    double dy = hunterY - monsterY;
+    double angleToHunter = atan2(dy, dx) * 180 / M_PI;
+
+    // Normalize angleToHunter to be between 0 and 360 degrees
+    if (angleToHunter < 0)
+        angleToHunter += 360;
+
+    // Calculate the absolute difference between the angles
+    double angleDifference = std::abs(angleToHunter - this->_angle);
+
+    // Ensure the smallest angle difference is considered
+    if (angleDifference > 180)
+        angleDifference = 360 - angleDifference;
+
+    // Check if the hunter is within the vision angle of the monster
+    return angleDifference <= this->_angle;
+}
 
