@@ -56,8 +56,8 @@ public:
 			*/
 			//_angle+=3.1415; -> the _angle variable is given in degrees
 			float rad= 1; //*Environnement::scale;
-			double dx=-sin((float)((float)_angle/180)*3.1415) * rad; //needs to be "-" because of our coordinate system 
-			double dy=cos((float)((float)_angle/180)*3.1415) * rad;
+			double dx=-sin((float)((float)_angle/180)*PI) * rad; //needs to be "-" because of our coordinate system 
+			double dy=cos((float)((float)_angle/180)*PI) * rad;
 			//if (EMPTY == _l -> data ((int)((_x+dx*speed)/Environnement::scale),(int)((_y+dy*speed)/Environnement::scale))){
 				//std::cout<<"cannot move"<<std::endl;
 			move(dx, dy);
@@ -114,8 +114,8 @@ public:
 		
 		//std::cout<<"new y: "<<new_y<<std::endl;
 		bool empty=_l -> data ((int)(new_x),(int)(new_y));
-		bool changed_x=new_x != (int)(_x/Environnement::scale);
-		bool changed_y=new_y != (int)(_y/Environnement::scale);
+		bool changed_x= new_x != (int)(_x/Environnement::scale);
+		bool changed_y= new_y != (int)(_y/Environnement::scale);
 
 		//std::cout<<"Changed x or y? "<<((empty!=0) and (changed_x or changed_y))<<std::endl;
 		
