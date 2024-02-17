@@ -26,6 +26,7 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
 	_wall_hit = new Sound ("sons/hit_wall.wav");
 
     this->_LP = _LP;
+	this->alive = true;
     _lastFB = std::chrono::system_clock::now();
     attaque = false;
     this->update_counter=0; //to count and not update movement at every step
@@ -40,11 +41,9 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
 
 void Gardien::destruct_dead_gardien()
 {
-	if(this->isAlive() == false)
+	if(this->alive == false)
 	{
-		int x = this->_x;
-		int y = this->_y;
-		((Labyrinthe*)(this->_l))->set_data(x,y,0);
+		this->rester_au_sol();
 	}
 }
 
@@ -52,12 +51,12 @@ void Gardien::destruct_dead_gardien()
 void Gardien::kill_gardien(){
     this->alive = false;
     this->rester_au_sol();
+	
 }
 
 void Gardien::decrease_LP(){
     this->_LP -= 50;
 	if (this->_LP <= 0){
-		this->alive = false;
 		this->kill_gardien();
         message ("I'm dead.");
     }else{
@@ -71,7 +70,7 @@ bool Gardien::isAlive(){
 }
 
 void Gardien::update(){
-	destruct_dead_gardien();
+
 	float angle_difference=see_chasseur();
 	if ((-30<=angle_difference) && (angle_difference <=30)) 
 	{
@@ -118,7 +117,7 @@ void Gardien::fire(int angle_vertical){
     std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _lastFB;
     if ((elapsed_seconds).count() > 3.0)
     {
-        if (((Chasseur*)(this->_l->_guards[0]))->isAlive())
+        if (((Chasseur*)(this->_l->_guards[0]))->isAlive()==true && isAlive() == true)
         {
             _guard_fire -> play ();
             _lastFB = std::chrono::system_clock::now();
@@ -312,7 +311,6 @@ float Gardien::see_chasseur(){
     while (angle_diff > 180) {
       angle_diff -= 360;
     }
-	std::cout<<"Angle Diff: "<<angle_diff<<std::endl; 
 	return angle_diff;
 }
 
