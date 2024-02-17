@@ -2,6 +2,14 @@
 #define CHASSEUR_H
 
 #include <stdio.h>
+#include <fstream>
+#include <vector>
+#include <cstring> 
+#include <string>
+#include <cmath> 
+#include <random>
+#include <assert.h>
+#include "Labyrinthe.h"
 #include "Mover.h"
 #include "Sound.h"
 
