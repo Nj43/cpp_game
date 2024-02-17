@@ -5,6 +5,7 @@
 #include "Sound.h"
 #include <chrono>
 #include <ctime>
+#include <random>
 
 class Labyrinthe;
 
@@ -13,7 +14,16 @@ private :
 	int _LP;
 	bool alive;
 	std::chrono::time_point<std::chrono::system_clock> _lastFB;
+	std::random_device rd; // obtain a random number from hardware
 	bool attaque;
+
+	int update_counter; //to count and not update movement at every step
+	int fps_counter;
+	int timer; //to count and not update movement at every step
+	float moveRadius; //maximum range that the guards can move in one update
+	int dangle; //maximum angle that the guardians can turn in one update
+	int speed;
+	float hitbox;
 
 public:
 	
@@ -26,7 +36,7 @@ public:
 	// mon gardien pense tr�s mal!
 	void update (void);
 	// et ne bouge pas!
-	bool move (double dx, double dy){return false;}
+	bool move (double dx, double dy);
 	// ne sait pas tirer sur un ennemi.
 	void fire (int angle_vertical);
 	// quand a faire bouger la boule de feu...
@@ -35,7 +45,7 @@ public:
 	void decrease_LP(void);
 	bool isAlive(void);
 	bool see_chasseur(void);
-	
+	bool check_obstacles();
 
 };
 

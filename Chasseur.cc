@@ -4,21 +4,6 @@
 #include <iostream>
 using namespace std;
 
-/*
- *	Tente un deplacement.
- */
-
-bool Chasseur::move_aux (double dx, double dy)
-{
-	if (EMPTY == _l -> data ((int)((_x + dx) / Environnement::scale),
-							 (int)((_y + dy) / Environnement::scale)))
-	{
-		_x += dx;
-		_y += dy;
-		return true;
-	}
-	return false;
-}
 
 /*
  *	Constructeur.
@@ -34,6 +19,40 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 
 	this->_LP = 200;
 	this->alive = true;
+}
+
+/*
+ *	Tente un deplacement.
+ */
+
+bool Chasseur::move_aux (double dx, double dy)
+{
+	update();
+	if (EMPTY == _l -> data ((int)((_x + dx) / Environnement::scale),
+							 (int)((_y + dy) / Environnement::scale)))
+	{
+		_x += dx;
+		_y += dy;
+		return true;
+	}
+	return false;
+}
+
+bool Chasseur::win_game()
+{
+	int x_tresor = ((Labyrinthe*)(this->_l))->getTresorX();
+	int y_tresor = ((Labyrinthe*)(this->_l))->getTresorY();
+	int x = this->_x/Environnement::scale;
+	int y = this->_y/Environnement::scale;
+	
+	return (abs(x_tresor - x) <= 1) && (abs(y_tresor - y) <= 1);
+}
+
+
+void Chasseur::update (void){ 
+	if (win_game()){
+		partie_terminee(true);
+	}
 }
 
 /*
@@ -62,14 +81,7 @@ bool Chasseur::process_fireball (float dx, float dy)
 		{
 			float x_place = (this->_l->_guards[i]->_x - _fb -> get_x ())/ Environnement::scale;
 			float y_place = (this->_l->_guards[i]->_y - _fb -> get_y ())/ Environnement::scale;
-			/*
-			cout << abs(_fb->get_x() - this->_l->_guards[i]->_x) << "\t";
-			cout << abs(_fb->get_y() - this->_l->_guards[i]->_y) << "\n";
 			
-			cout << "------------------------" << "\n";
-			cout << x_place << "\t";
-			cout << y_place << "\n";
-			*/
 			//we get the gardien that is at (x,y) which means that it is hit by the fireball
 			if ((abs(x_place) <= 1.5) && (abs(y_place) <= 1.5) &&  (((Gardien*)(this->_l->_guards[i]))->isAlive() == true))
 			{

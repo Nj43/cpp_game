@@ -21,12 +21,13 @@ public:
 
 	// constructeur.
 	Chasseur (Labyrinthe* l);
+	// le chasseur ne pense pas!
+	void update (void);
 	// ne bouger que dans une case vide (on 'glisse' le long des obstacles)
 	bool move (double dx, double dy) {
 		return move_aux (dx, dy) || move_aux (dx, 0.0) || move_aux (0.0, dy);
 	}
-	// le chasseur ne pense pas!
-	void update (void) {};
+	
 	// fait bouger la boule de feu (ceci est une exemple, � vous de traiter les collisions sp�cifiques...)
 	bool process_fireball (float dx, float dy);
 	// tire sur un ennemi.
@@ -34,6 +35,7 @@ public:
 	// clic droit.
 	void right_click (bool shift, bool control);
 	bool isAlive();
+	bool win_game();
 };
 
 #endif
