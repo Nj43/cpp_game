@@ -20,7 +20,7 @@ private:
 	int timer=0; //to count and not update movement at every step
 	float moveRadius=1; //maximum range that the guards can move in one update
 	int dangle=0; //maximum angle that the guardians can turn in one update
-	int speed= Environnement::scale/8;
+	int speed= Environnement::scale/10;
 	float hitbox=Environnement::scale/2; 
 	
 public:
@@ -32,99 +32,25 @@ public:
 		timer+=1; 
 		update_counter+=1;
 		fps_counter+=1;
-		//std::cout<<"FPS: "<<fps_counter<<std::endl;
-		//if (fps_counter%8 == 0){
-		//	std::cout<<"No update"<<std::endl;
-		//	update_counter=0;
-		//	return;
-		//}
-		// Generate random movement
-		if (update_counter==1){
-			
 
-			/*This part was used for random angle calculation for the movement of the guards, sine we move in straight lined, we dont need it
-			std::mt19937 gen(rd()); // seed the generator
-			std::uniform_int_distribution<> distr(0, 0);
-			if ((timer%50) == 0){
-				int delta=distr(gen);
-				
-				//std::cout<<"Angle: "<<_angle<<std::endl;
-				if ((_angle+delta)==360){
-					_angle=0;
-				}
-				else{ 
-					_angle+=delta;
-				}
-			}
-			*/
-			//_angle+=3.1415; -> the _angle variable is given in degrees
+		if (update_counter==1){
 			float rad= 1; //*Environnement::scale;
 
 			double dx=-sin((float)((float)_angle/180)*M_PI) * rad; //needs to be "-" because of our coordinate system 
 			double dy=cos((float)((float)_angle/180)*M_PI) * rad;
-			//if (EMPTY == _l -> data ((int)((_x+dx*speed)/Environnement::scale),(int)((_y+dy*speed)/Environnement::scale))){
-				//std::cout<<"cannot move"<<std::endl;
-			//bool see_hunter=see_hunter_2();
+
 			float angle_difference=see_chasseur();
-			//std::cout<<"Angle diff: "<<angle_difference<<std::endl; 
+
 			if ((-30<=angle_difference) && (angle_difference <=30)){
-				//std::cout<<"Peakaboo! "<<std::endl;
+
 				bool obstacles=check_obstacles();
-				//std::cout<<"Obstacles? "<< obstacles <<std::endl;
+
 				if (obstacles==1){
 					_angle += angle_difference;
-					//std::cout<<"Angle Diff:  "<<angle_difference<<std::endl; 
-					//std::cout<<"New angle: "<<_angle + angle_difference<<std::endl; 
-
-
-					//if (angle_difference>=0){
-					//	std::cout<<"we are on the left"<<std::endl;
-					//}
-					
-					//if (angle_difference<=0){
-					//	std::cout<<"we are on the right"<<std::endl;
-					//}
-					//std::cout<<"New Real Angle: "<<_angle<<std::endl; 
-					
-					//std::cout<<"No Obstacles! "<<std::endl;
-					//std::cout<<"Peakaboo! "<<std::endl;
 					
 				}	
 			}
-			
-		
-			//else if (see == 0){
-				//std::cout<<"Not visible!"<<std::endl;
-			//}
-			//if ((_angle>360) or (_angle<0)){
-			//	std::cout<<_angle<<std::endl;	
-			//}
-			//std::cout<<_angle<<std::endl;
-			//assert ((_angle<=360) and (_angle>=0));
 			move(dx, dy);
-		
-			//}
-
-			/*
-			else{
-				//int wall_delta=45;
-				std::mt19937 gen(rd()); // seed the generator
-				std::uniform_int_distribution<> wall_distr(-90, 90);
-				int wall_delta=wall_distr(gen);
-
-
-				if((_angle-wall_delta)<=0){
-					_angle+=abs(wall_delta);
-				}
-				else if((_angle+wall_delta)>=360){
-					_angle=0+(360-_angle);
-				}
-				else{
-					_angle+=wall_delta; //_angle+90; //run into wall then change direction
-				}
-			
-			}
-			*/
 			update_counter=0;	
 		}
 			
@@ -174,7 +100,7 @@ public:
 					_angle=0+(360-_angle);
 				}
 				else{
-					_angle+=wall_delta; //_angle+90; //run into wall then change direction
+					_angle+=wall_delta;  //run into wall then change direction
 				}
 				return false;
 				}
@@ -204,7 +130,7 @@ public:
 		//double angle_diff = std::abs(angleToHunter-_angle-90.0);
 		//angleToHunter -= 90.0;
 		// std::cout<<"Angle to Hunter: "<<angleToHunter<<std::endl; 
-		std::cout<<"Angle: "<<_angle<<std::endl;
+		//std::cout<<"Angle: "<<_angle<<std::endl;
 		double angleToNormal2 =  angleToNormal - 90 ;
 		// Normalize angleToHunter to be between 0 and 360 degrees
 		//if (angleToHunter < 0)
@@ -212,7 +138,7 @@ public:
     if (angleToNormal2 <= -270) {
       angleToNormal2 +=360;
     }
-		std::cout<<"Diff: "<<angleToNormal2<<std::endl; 
+		//std::cout<<"Diff: "<<angleToNormal2<<std::endl; 
     double angle_diff = angleToNormal2 - _angle;
     while (angle_diff < -180) {
       angle_diff += 360;
@@ -220,7 +146,7 @@ public:
     while (angle_diff > 180) {
       angle_diff -= 360;
     }
-		std::cout<<"Angle Diff: "<<angle_diff<<std::endl; 
+		//std::cout<<"Angle Diff: "<<angle_diff<<std::endl; 
 		return angle_diff;
 	}
 
@@ -278,15 +204,6 @@ public:
 		//Now that we have collected all points, we need to check if the 
 		return true;
 	}
-	void move_follow(float angle_diff){
-		//We have the hunterX and hunterY and our angle. We want to adjust the 
-		//angle so that we look at the hunter, and follow along that axis
-
-		//return false;
-
-		
-	}
-
 	void fire (int angle_vertical) {}
 	// quand a faire bouger la boule de feu...
 	bool process_fireball (float dx, float dy) { return false; }
