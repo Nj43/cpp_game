@@ -361,15 +361,45 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	//std::cout<<"start pos chasseur: "<<all_data[2][0][0][0]<<" "<<all_data[2][0][0][1]<<std::endl;
 	_guards [0] = new Chasseur (this); _guards [0] -> _x=scale*static_cast<float>(all_data[2][0][0][0]); _guards [0] ->_y=scale*static_cast<float>(all_data[2][0][0][1]);
 	_data [(int)(_guards [0] -> _x/scale)][(int)(_guards [0] -> _y/scale)] = 1;
-
 	
 	for (int g = 1; g < _nguards; g++){
-
-		_guards[g] = new Gardien (this, "Serpent", 100); _guards[g] -> _x = scale*static_cast<float>(all_data[1][g-1][0][0]); _guards[g] -> _y = scale*static_cast<float>(all_data[1][g-1][0][1]);
+		std::cout<<g << monster[g-1]<<std::endl;
+		_guards[g] = new Gardien (this, monster[g-1], 100); _guards[g] -> _x = scale*static_cast<float>(all_data[1][g-1][0][0]); _guards[g] -> _y = scale*static_cast<float>(all_data[1][g-1][0][1]);
 
 		_data [(int)(_guards[g]->_x/scale)][(int)(_guards[g]->_y/scale)] = 1;
 
 	}
+	
+	/*
+	_guards[1] = new Gardien (this, "Serpent", 200); _guards[1] -> _x = scale*static_cast<float>(all_data[1][1-1][0][0]); _guards[1] -> _y = scale*static_cast<float>(all_data[1][1-1][0][1]);
+	_data [(int)(_guards[1]->_x/scale)][(int)(_guards[1]->_y/scale)] = 1;
+
+	_guards[2] = new Gardien (this, "Serpent", 200); _guards[2] -> _x = scale*static_cast<float>(all_data[1][2-1][0][0]); _guards[2] -> _y = scale*static_cast<float>(all_data[1][2-1][0][1]);
+	_data [(int)(_guards[2]->_x/scale)][(int)(_guards[2]->_y/scale)] = 1;
+
+	_guards[3] = new Gardien (this, "Serpent", 200); _guards[3] -> _x = scale*static_cast<float>(all_data[1][3-1][0][0]); _guards[3] -> _y = scale*static_cast<float>(all_data[1][3-1][0][1]);
+	_data [(int)(_guards[3]->_x/scale)][(int)(_guards[3]->_y/scale)] = 1;
+	
+	_guards[4] = new Gardien (this, "Marvin", 200); _guards[4] -> _x = scale*static_cast<float>(all_data[1][4-1][0][0]); _guards[4] -> _y = scale*static_cast<float>(all_data[1][4-1][0][1]);
+	_data [(int)(_guards[4]->_x/scale)][(int)(_guards[4]->_y/scale)] = 1;
+
+	_guards[5] = new Gardien (this, "Potator", 200); _guards[5] -> _x = scale*static_cast<float>(all_data[1][5-1][0][0]); _guards[5] -> _y = scale*static_cast<float>(all_data[1][5-1][0][1]);
+	_data [(int)(_guards[5]->_x/scale)][(int)(_guards[5]->_y/scale)] = 1;
+
+	_guards[6] = new Gardien (this, "Droid", 200); _guards[6] -> _x = scale*static_cast<float>(all_data[1][6-1][0][0]); _guards[6] -> _y = scale*static_cast<float>(all_data[1][6-1][0][1]);
+	_data [(int)(_guards[6]->_x/scale)][(int)(_guards[6]->_y/scale)] = 1;
+
+	_guards[7] = new Gardien (this, "Blade", 200); _guards[7] -> _x = scale*static_cast<float>(all_data[1][7-1][0][0]); _guards[7] -> _y = scale*static_cast<float>(all_data[1][7-1][0][1]);
+	_data [(int)(_guards[7]->_x/scale)][(int)(_guards[7]->_y/scale)] = 1;
+
+	_guards[8] = new Gardien (this, "Squelette", 200); _guards[8] -> _x = scale*static_cast<float>(all_data[1][8-1][0][0]); _guards[8] -> _y = scale*static_cast<float>(all_data[1][8-1][0][1]);
+	_data [(int)(_guards[8]->_x/scale)][(int)(_guards[8]->_y/scale)] = 1;
+
+	_guards[9] = new Gardien (this, "drfreak", 200); _guards[9] -> _x = scale*static_cast<float>(all_data[1][9-1][0][0]); _guards[9] -> _y = scale*static_cast<float>(all_data[1][9-1][0][1]);
+	_data [(int)(_guards[9]->_x/scale)][(int)(_guards[9]->_y/scale)] = 1;
+	
+	*/
+	
 
 
 }

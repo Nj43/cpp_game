@@ -17,8 +17,18 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 	if (_wall_hit == 0)
 		_wall_hit = new Sound ("sons/hit_wall.wav");
 
-	this->_LP = 200;
+	this->_LP = 100;
 	this->alive = true;
+}
+
+void Chasseur::decrease_LP_chasseur(){
+    this->_LP -= 10;
+	if (this->_LP <= 0){
+        message ("I'm dead.");
+        partie_terminee(false);
+    }else{
+        message ("Aïe ! I only have %d LP now.", (int) this->_LP);
+    }
 }
 
 /*
@@ -83,7 +93,7 @@ bool Chasseur::process_fireball (float dx, float dy)
 			float y_place = (this->_l->_guards[i]->_y - _fb -> get_y ())/ Environnement::scale;
 			
 			//we get the gardien that is at (x,y) which means that it is hit by the fireball
-			if ((abs(x_place) <= 1.5) && (abs(y_place) <= 1.5) &&  (((Gardien*)(this->_l->_guards[i]))->isAlive() == true))
+			if ((abs(x_place) <= 2) && (abs(y_place) <= 2) &&  (((Gardien*)(this->_l->_guards[i]))->isAlive() == true))
 			{
 				//message("hit %d", i);
 				((Gardien*)(this->_l->_guards[i]))->decrease_LP();

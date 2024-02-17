@@ -16,7 +16,7 @@ private :
 	std::chrono::time_point<std::chrono::system_clock> _lastFB;
 	std::random_device rd; // obtain a random number from hardware
 	bool attaque;
-
+	int _mode;//0 is patrol mode and 1 is attack mode
 	int update_counter; //to count and not update movement at every step
 	int fps_counter;
 	int timer; //to count and not update movement at every step
@@ -46,7 +46,7 @@ public:
 	bool isAlive(void);
 	bool see_chasseur(void);
 	bool check_obstacles();
-	bool see_hunter_2();
+	double hit_probability(double coefficient);	
 
 };
 

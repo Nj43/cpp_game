@@ -36,6 +36,7 @@ public:
 	void right_click (bool shift, bool control);
 	bool isAlive();
 	bool win_game();
+	void decrease_LP_chasseur();
 };
 
 #endif
