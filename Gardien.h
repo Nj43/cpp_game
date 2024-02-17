@@ -44,7 +44,7 @@ public:
 	void kill_gardien(void);
 	void decrease_LP(void);
 	bool isAlive(void);
-	bool see_chasseur(void);
+	float see_chasseur(void);
 	bool check_obstacles();
 	double hit_probability(double coefficient);	
 
