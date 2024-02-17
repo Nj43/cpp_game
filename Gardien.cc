@@ -38,6 +38,16 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
 	this->_mode=0; //patrol mode by default
 }
 
+void Gardien::destruct_dead_gardien()
+{
+	if(this->isAlive() == false)
+	{
+		int x = this->_x;
+		int y = this->_y;
+		((Labyrinthe*)(this->_l))->set_data(x,y,0);
+	}
+}
+
 
 void Gardien::kill_gardien(){
     this->alive = false;
@@ -45,10 +55,11 @@ void Gardien::kill_gardien(){
 }
 
 void Gardien::decrease_LP(){
-    this->_LP -= 30;
+    this->_LP -= 50;
 	if (this->_LP <= 0){
+		this->alive = false;
+		this->kill_gardien();
         message ("I'm dead.");
-        this->kill_gardien();
     }else{
         message ("Aïe ! I only have %d LP now.", (int) this->_LP);
         this->tomber();
@@ -60,6 +71,7 @@ bool Gardien::isAlive(){
 }
 
 void Gardien::update(){
+	destruct_dead_gardien();
 	float angle_difference=see_chasseur();
 	if ((-30<=angle_difference) && (angle_difference <=30)) 
 	{

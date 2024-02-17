@@ -47,6 +47,7 @@ public:
 	float see_chasseur(void);
 	bool check_obstacles();
 	double hit_probability(double coefficient);	
+	void destruct_dead_gardien();
 
 };
 

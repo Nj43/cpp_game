@@ -6,11 +6,11 @@ b	affiche2.jpg	# texture de l'affiche 2
 +-------------a-------------------------a-----+
 |                                     C       |
 |                                             |
-|                                             b
+|           G                                 b
 |                                             |
 |                                     G       |
 |                                             |
-|                                             |
+|       G                                     |
 |                                  x          |
 |                    G                        |
 |                                             |
@@ -19,8 +19,8 @@ b	affiche2.jpg	# texture de l'affiche 2
 |                    G                        |
 |                                             |
 |                                             |
-| G                                           |
-|                   G                         |
+|   G                                         |
+|                                G            |
 |                                             a
 |                                             |
 |   T                                        x|

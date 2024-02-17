@@ -8,7 +8,7 @@ private:
 	int		_width;
 	int		_height;
 	char**	_data;
-	const char* monster[12] = {"Serpent", "Lezard", "Samourai", "Marvin", "Potator", "Serpent","Marvin", "Serpent", "Potator", "Samourai", "Marvin"};
+	const char* monster[12] = {"Lezard", "Lezard", "Samourai", "Marvin", "Potator", "Marvin","Marvin", "Potator", "Potator", "Samourai", "Marvin"};
 
 public:
 	Labyrinthe (char*);
