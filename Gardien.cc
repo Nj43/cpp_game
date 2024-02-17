@@ -56,48 +56,45 @@ bool Gardien::isAlive(){
 }
 
 void Gardien::update(){
-    if(see_chasseur() and isAlive() == true){
-		cout << "see" << "\n" ;
-        this->fire(0);
-    }
     timer+=1; 
-	update_counter+=1;
-	fps_counter+=1;
+		update_counter+=1;
+		fps_counter+=1;
+		// Generate random movement
+		if (update_counter==1){
+			float rad= 1; //*Environnement::scale;
+
+			double dx=-sin((float)((float)_angle/180)*M_PI) * rad; //needs to be "-" because of our coordinate system 
+			double dy=cos((float)((float)_angle/180)*M_PI) * rad;
+
+			//bool see_hunter=see_hunter_2();
+			bool see=see_chasseur();
+			if (see == 1){
+				//std::cout<<"Peakaboo! "<<std::endl;
+				bool obstacles=check_obstacles();
+				//std::cout<<"Obstacles? "<< obstacles <<std::endl;
+				if (obstacles==1){
+					//std::cout<<"No Obstacles! "<<std::endl;
+					std::cout<<"Peakaboo! "<<std::endl;
+					
+				}	
+			}
+		
+			else if (see == 0){
+				//std::cout<<"Not visible!"<<std::endl;
+			}
+			assert ((_angle<=360) and (_angle>=0));
+			move(dx, dy);
 	
-	// Generate random movement
-	if (update_counter==1 && isAlive() == true){
-		float rad= 1; //*Environnement::scale;
-
-		double dx=-sin((float)((float)_angle/180)*M_PI) * rad; //needs to be "-" because of our coordinate system 
-		double dy=cos((float)((float)_angle/180)*M_PI) * rad;
-		bool see=see_chasseur();
-		if (see == 1){
-			//std::cout<<"Peakaboo! "<<std::endl;
-			bool obstacles=check_obstacles();
-			//std::cout<<"Obstacles? "<< obstacles <<std::endl;
-			if (obstacles==1){
-				//std::cout<<"No Obstacles! "<<std::endl;
-				std::cout<<"Peakaboo! "<<std::endl;
-				this->fire(0);
-				
-			}	
+			update_counter=0;	
 		}
-
-		else if (see == 0){
-			//std::cout<<"Not visible!"<<std::endl;
-		}
-		cout << "Angle : " << _angle << "\n";
-		assert ((_angle<=360) and (_angle>=0));
-		move(dx, dy);
-		update_counter=0;	
-	}
 }
 
 void Gardien::fire(int angle_vertical){
     float theta = std::atan2((_l->_guards[0]->_x - _x),(_l->_guards[0]->_y - _y));
-	float angleF = (180 * theta) / M_PI;
+	this->_angle = (180 * theta) / M_PI;
     
     //if the gardien sees the hunter
+    //cout << (std::chrono::system_clock::now() -_lastFB).count() << "\n";
     std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _lastFB;
     if ((elapsed_seconds).count() > 3.0)
     {
@@ -105,9 +102,11 @@ void Gardien::fire(int angle_vertical){
         {
             _guard_fire -> play ();
             _lastFB = std::chrono::system_clock::now();
-            _fb -> init (_x, _y, 10., angle_vertical, angleF);
+            _fb -> init (_x, _y, 10., angle_vertical, _angle);
         }
     }
+
+
 }
 
 
@@ -135,6 +134,8 @@ bool Gardien::process_fireball (float dx, float dy)
         if ((abs(x_place) <= 1.5) && (abs(y_place) <= 1.5) &&  (((Chasseur*)(this->_l->_guards[0]))->isAlive() == true))
         {
             message("Chasseur hit");
+            //((Gardien*)(this->_l->_guards[i]))->decrease_LP();
+            
         }
 		
 	}
@@ -142,168 +143,196 @@ bool Gardien::process_fireball (float dx, float dy)
 	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
 	_wall_hit -> play (1. - dist2/dmax2);
-	message ("Booom...");
+	//message ("Booom...");
 	return false;
 }
-
-
-
-
-bool Gardien::see_chasseur()
-{
-	Mover* hunter = this->_l->_guards[0];
-	int hunterX = hunter->_x / Environnement::scale;
-	int hunterY = hunter->_y / Environnement::scale;
-	float monsterX = this->_x / Environnement::scale;
-	float monsterY = this->_y / Environnement::scale;
-	//print(angle)
-	// Calculate the angle between the monster and the hunter
-	double dx = hunterX - monsterX;
-	double dy = hunterY - monsterY;
-	double angleToHunter = atan2(dy, dx) * 180 / M_PI;
-	//double angle_diff = std::abs(angleToHunter-_angle-90.0);
-	
-	// Normalize angleToHunter to be between 0 and 360 degrees
-	if (angleToHunter < 0)
-		angleToHunter += 360;
-	
-	// Calculate the absolute difference between the angle
-	// Ensure the smallest angle difference is considered
-	double angle_diff = std::abs(angleToHunter-_angle-90.0);
-	
-	if (angle_diff > 180)
-		angle_diff = 360 - angle_diff;
-
-	// Check if the hunter is within the vision angle of the monster
-	return  ((-3<=angle_diff) && (angle_diff <=3)); //we introduce some slack values
-}
-
 
 
 bool Gardien::move (double dx, double dy){
+		//TODO: if we set the speed parameter to scale/1 this works and the guards dont run into each other
+		//in any other case (if we reduce the speed) we will run through other guards. Find out why and fix
+		//if we have time
+		int new_x=(_x+dx*speed)/Environnement::scale;
+
+		//however, this is going to be the field that I need to check
+		int checkbox_x = (_x+dx*Environnement::scale)/Environnement::scale;
+		
+		//std::cout<<"old x: "<<_x/Environnement::scale<<std::endl;
+		//std::cout<<"new x: "<<new_x<<std::endl;
+        int new_y=(_y+dy*speed)/Environnement::scale;
+		int checkbox_y = (_y+dy*Environnement::scale)/Environnement::scale;
+		//std::cout<<"True new x and y: "<<
+		std::cout<<"Rounded true movement: ("<<new_x<<","<<new_y<<")"<<std::endl;
+		std::cout<<"Checkbox: ("<<checkbox_x<<","<<checkbox_y<<")"<<std::endl;
+
+		
+		//std::cout<<"new y: "<<new_y<<std::endl;
+		bool empty=_l -> data ((int)(new_x),(int)(new_y));
+		bool changed_x=new_x != (int)(_x/Environnement::scale);
+		bool changed_y=new_y != (int)(_y/Environnement::scale);
+		
+		if ((new_x<0) || (new_y<0) || (new_y >= _l->height()) || (new_x >= _l->width())){
+			return false;
+		}
+		//if something is in the way, check if it is us (no change in x or y, we are moving within a field)
+		//If it is us in the way -> just move, if not  
+		if((empty!=0)){
+
+			if ((changed_x or changed_y)){
+				
+				std::cout<<"Somethings in the way at: ("<<new_x<<","<<new_y<<")"<<std::endl;
+
+				//Change angle and dont move forward
+				std::mt19937 gen(rd()); // seed the generator
+				std::uniform_int_distribution<> wall_distr(-90, 90);
+				int wall_delta=wall_distr(gen);
+
+
+				if((_angle-wall_delta)<=0){
+					_angle+=abs(wall_delta);
+				}
+				else if((_angle+wall_delta)>=360){
+					_angle=0+(360-_angle);
+				}
+				else{
+					_angle+=wall_delta; //_angle+90; //run into wall then change direction
+				}
+				return false;
+			}
+
+			else{
+
+				((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, '1'); //update the new position
+				((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), '\0');
+				//move the guard
+				_x+=dx*speed; ///Environnement::scale;
+				_y+=dy*speed; ///Environnement::scale;
+				return true;
+			}
+
+		}
+		else{
+			if ((changed_x or changed_y)){
+				((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, 1); //update the new position
+				((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
+			}
+			_x+=dx*speed; ///Environnement::scale;
+			_y+=dy*speed; ///Environnement::scale;
+			return true;
+		}
+	return false;
 	
-	int new_x=(_x+dx*speed)/Environnement::scale;
-	int new_y=(_y+dy*speed)/Environnement::scale;
-	int checkbox_x_a = (_x+dx*speed+((dx>=0)-(dx<0))*hitbox)/Environnement::scale;
-	int checkbox_y_a = (_y+dy*speed+((dy>=0)-(dy<0))*hitbox)/Environnement::scale;
+	}
 
-	bool empty=_l -> data ((int)(new_x),(int)(new_y));
-	
-	bool empty_checkbox=_l -> data ((int)(checkbox_x_a),(int)(checkbox_y_a));
 
-	//std::cout<<"Element in front? "<<empty<<"  Element in Checkbox? "<<empty_checkbox<<std::endl;
-	bool changed_x= new_x != (int)(_x/Environnement::scale); 
-	bool changed_y= new_y != (int)(_y/Environnement::scale);
 
-	bool changed_checkbox_x = checkbox_x_a !=(int)(_x/Environnement::scale); 
-	bool changed_checkbox_y = checkbox_y_a !=(int)(_y/Environnement::scale); 
-	//std::cout<<"Changed x or y? "<<((empty!=0) and (changed_x or changed_y))<<std::endl;
-	//std::cout<<"Changed x"
-	if ((new_x<0) || (new_y<0) || (new_y >= _l->height()) || (new_x >= _l->width())){
-		//std::cout<<"new x: "<<new_x<<"new y: "<<new_y<<std::endl;
+
+	bool Gardien::see_hunter_2(){
+		Mover* hunter = this->_l->_guards[0];
+		int hunterX = hunter->_x / Environnement::scale;
+    	int hunterY = hunter->_y / Environnement::scale;
+
+		//std::cout<<"Hunter Position: ("<<hunterX<<", "<<hunterY<<")"<<std::endl;
+		
+		//after collecting the hunters position, we now need to check if we can see him,
+		//that is, if we can draw a straight line between us and the hunter if we follow the
+		//angle of the guard. To do this, we use our check_obstacles function, and determine 
+		//with an end point we determine from the guards position to the end of the field
+
+		int max_x=_l->width();
+		int max_y=_l->height(); 
+
+		//now, we want to find the enf point of where the guard can see. 
+
 
 		return false;
 	}
-	//if something is in the way, check if it is us (no change in x or y, we are moving within a field)
-	//If it is us in the way -> just move, if not  
-	if((empty_checkbox!=0)){
+	bool Gardien::see_chasseur(){
+		Mover* hunter = this->_l->_guards[0];
+		int hunterX = hunter->_x / Environnement::scale;
+		int hunterY = hunter->_y / Environnement::scale;
+		float monsterX = this->_x / Environnement::scale;
+		float monsterY = this->_y / Environnement::scale;
+		//print(angle)
+		// Calculate the angle between the monster and the hunter
+		double dx = hunterX - monsterX;
+		double dy = hunterY - monsterY;
+		double angleToHunter = atan2(dy, dx) * 180 / M_PI;
+		//double angle_diff = std::abs(angleToHunter-_angle-90.0);
 		
-		if ((changed_checkbox_x or changed_checkbox_y)){
-
-			if ((std::abs(dx)>0.01) or (std::abs(dy)>0.01)){
-				//move(dx/2, dy/2);
-				//std::cout<<"Somethings in the way at: ("<<new_x<<","<<new_y<<")"<<std::endl;
-
-			
-			//Change angle and dont move forward
-			std::mt19937 gen(rd()); // seed the generator
-			std::uniform_int_distribution<> wall_distr(-90, 90);
-			int wall_delta=wall_distr(gen);
-
-
-			if((_angle+wall_delta)<=0){
-				//std::cout<<"Here: original angle: "<<_angle<<"  new angle: "<<wall_delta<<std::endl;
-				_angle+=abs(wall_delta);
-			}
-			else if((_angle+wall_delta)>=360){
-				_angle=0+(360-_angle);
-			}
-			else{
-				_angle+=wall_delta; //_angle+90; //run into wall then change direction
-			}
-			return false;
-			}	
-		}
-	}
+		// Normalize angleToHunter to be between 0 and 360 degrees
+		if (angleToHunter < 0)
+			angleToHunter += 360;
 		
-	if ((changed_x or changed_y)){
-		//std::cout<<"We have left a certain point in the matrix!"<<std::endl;
-		//std::cout<<"Set 1 to: ("<<(int) new_x<<","<<(int) new_y<<")"<<std::endl;
-		((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, 1); //update the new position
-		((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
+		// Calculate the absolute difference between the angles
+		//double angleDifference = std::abs(angleToHunter - this->_angle);
+		//std::cout<<"Angle diff: "<<angleDifference<<std::endl;
+		//std::cout<<"Angle of guard: "<<_angle<<std::endl;
+		// Ensure the smallest angle difference is considered
+		double angle_diff = std::abs(angleToHunter-_angle-90.0);
+		
+		if (angle_diff > 180)
+			angle_diff = 360 - angle_diff;
+		//std::cout<<(int)angle_diff<<std::endl;
+		// Check if the hunter is within the vision angle of the monster
+		//std::cout<<angle_diff<<std::endl;
+		return  ((-3<=angle_diff) && (angle_diff <=3)); //we introduce some slack values
 	}
-	_x+=dx*speed; ///Environnement::scale;
-	_y+=dy*speed; ///Environnement::scale;
-	return true;
-	//}
-	return false;
-}
 
 
 
 
+	bool Gardien::check_obstacles(){
+		//we need to store the points that we cross in a vector
+		std::vector<std::pair<int, int>> points;
 
-bool Gardien::check_obstacles(){
-	//we need to store the points that we cross in a vector
-	std::vector<std::pair<int, int>> points;
+		//To follow the chasseur, we first need to find his location and 
+		//from our update function, we will be provided with the angle we are currently in
+		Mover* hunter=this->_l->_guards[0];
+		int hunterX = hunter->_x / Environnement::scale;
+    	int hunterY = hunter->_y / Environnement::scale;
 
-	//To follow the chasseur, we first need to find his location and 
-	//from our update function, we will be provided with the angle we are currently in
-	Mover* hunter=this->_l->_guards[0];
-	int hunterX = hunter->_x / Environnement::scale;
-	int hunterY = hunter->_y / Environnement::scale;
+		int guardX=this->_x/ Environnement::scale;
+		int guardY=this->_y/ Environnement::scale;
 
-	int guardX=this->_x/ Environnement::scale;
-	int guardY=this->_y/ Environnement::scale;
+		//Now we want to find the difference between the hinter an the guard
+		int dx=abs(guardX-hunterX);
+		int dy=abs(guardY-hunterY);
 
-	//Now we want to find the difference between the hinter an the guard
-	int dx=abs(guardX-hunterX);
-	int dy=abs(guardY-hunterY);
+		//Next, with our given relative positions of hunter and guard, we 
+		//to figure out, in what direction we need to move. We therefore introduce
+		//two sign variables for the x and y axis, determining, whether we have a 
+		//positive or a negative direction between the two points
 
-	//Next, with our given relative positions of hunter and guard, we 
-	//to figure out, in what direction we need to move. We therefore introduce
-	//two sign variables for the x and y axis, determining, whether we have a 
-	//positive or a negative direction between the two points
+		int sx=(guardX<hunterX) ? 1: -1;
+		int sy=(guardY<hunterY) ? 1: -1;
 
-	int sx=(guardX<hunterX) ? 1: -1;
-	int sy=(guardY<hunterY) ? 1: -1;
+		//We also introduce a variable which will determine, whether we do a 
+		//horizontal or a vertical step. If the error term is positive, that means
+		// that the dx variable is bigger than the dy variable, which means
+		// that we need to increment in vertical direction. Otherwise, we increment in 
+		//horizontal direction
 
-	//We also introduce a variable which will determine, whether we do a 
-	//horizontal or a vertical step. If the error term is positive, that means
-	// that the dx variable is bigger than the dy variable, which means
-	// that we need to increment in vertical direction. Otherwise, we increment in 
-	//horizontal direction
-
-	int err=dx-dy;
-	int counter=0;
-	while (guardX!=hunterX || guardY!=hunterY){
-		points.push_back({guardX, guardY});
-		//If there is an obstacle in between guard and hunter, return false
-		if (((_l -> data (guardX,guardY)) == 1) && (counter >=1)){
-			return false;
+		int err=dx-dy;
+		int counter=0;
+		while (guardX!=hunterX || guardY!=hunterY){
+			points.push_back({guardX, guardY});
+			//If there is an obstacle in between guard and hunter, return false
+			if (((_l -> data (guardX,guardY)) == 1) && (counter >=1)){
+				return false;
+			}
+			int e2=2*err;
+			if(e2>-dy){
+				err-=dy;
+				guardX+=sx;
+			}
+			if(e2<dx){
+				err+=dx;
+				guardY+=sy;
+			}
+			counter+=1;
 		}
-		int e2=2*err;
-		if(e2>-dy){
-			err-=dy;
-			guardX+=sx;
-		}
-		if(e2<dx){
-			err+=dx;
-			guardY+=sy;
-		}
-		counter+=1;
+		points.push_back({hunterX, hunterY});
+		//Now that we have collected all points, we need to check if the 
+		return true;
 	}
-	points.push_back({hunterX, hunterY});
-	//Now that we have collected all points, we need to check if the 
-	return true;
-}

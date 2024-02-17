@@ -46,6 +46,7 @@ public:
 	bool isAlive(void);
 	bool see_chasseur(void);
 	bool check_obstacles();
+	bool see_hunter_2();
 
 };
 
