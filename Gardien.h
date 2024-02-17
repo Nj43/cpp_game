@@ -20,7 +20,7 @@ private:
 	int timer=0; //to count and not update movement at every step
 	float moveRadius=1; //maximum range that the guards can move in one update
 	int dangle=0; //maximum angle that the guardians can turn in one update
-	int speed= 0;//Environnement::scale/5;
+	int speed= Environnement::scale/8;
 	float hitbox=Environnement::scale/2; 
 	
 public:
@@ -199,39 +199,29 @@ public:
 		// Calculate the angle between the monster and the hunter
 		double dx = hunterX - monsterX;
 		double dy = hunterY - monsterY;
-		double angleToHunter = atan2(dy, dx) * 180 / M_PI;
+		double angleToNormal = atan2(dy, dx) * 180 / M_PI;
 		//std::cout<<"Angle to Hunter: "<<angleToHunter<<std::endl; 
-		//std::cout<<"X and Y Pos Hunter: ("<<hunterX<<","<<hunterY<<")"<<std::endl; 
 		//double angle_diff = std::abs(angleToHunter-_angle-90.0);
 		//angleToHunter -= 90.0;
-		std::cout<<"Angle to Hunter: "<<angleToHunter<<std::endl; 
+		// std::cout<<"Angle to Hunter: "<<angleToHunter<<std::endl; 
 		std::cout<<"Angle: "<<_angle<<std::endl;
-		double _angle2  = _angle - 180;
-		std::cout<<"Angle2: "<<_angle2<<std::endl;
-		double diff = _angle2  + 90 + angleToHunter;
+		double angleToNormal2 =  angleToNormal - 90 ;
 		// Normalize angleToHunter to be between 0 and 360 degrees
 		//if (angleToHunter < 0)
 		//	angleToHunter += 360;
-		if (diff<-180){
-			diff+=360;
-		}
-		std::cout<<"Diff: "<<diff<<std::endl; 
-		return diff;
-		//std::cout<<"_Angle: "<<
-		// Ensure the smallest angle difference is considered
-		double angle_diff = std::abs(angleToHunter-_angle);
-		
-		// Ensure the angle difference is within -180 to 180 degrees
-    	
-		if (angle_diff > 180){
-			//std::cout<<"Here: "<<std::endl; 
-        	angle_diff -= 360;
-		}
-    	else if (angle_diff < -180){
-        	angle_diff += 360;
-		}
-		//std::cout<<"Angle diff: "<<angle_diff<<std::endl;
-		return  angle_diff; //((-3<=angle_diff) && (angle_diff <=3)); //we introduce some slack values
+    if (angleToNormal2 <= -270) {
+      angleToNormal2 +=360;
+    }
+		std::cout<<"Diff: "<<angleToNormal2<<std::endl; 
+    double angle_diff = angleToNormal2 - _angle;
+    while (angle_diff < -180) {
+      angle_diff += 360;
+    }
+    while (angle_diff > 180) {
+      angle_diff -= 360;
+    }
+		std::cout<<"Angle Diff: "<<angle_diff<<std::endl; 
+		return angle_diff;
 	}
 
 	bool check_obstacles(){
