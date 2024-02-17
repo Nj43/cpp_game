@@ -20,7 +20,7 @@ private:
 	int timer=0; //to count and not update movement at every step
 	float moveRadius=1; //maximum range that the guards can move in one update
 	int dangle=0; //maximum angle that the guardians can turn in one update
-	int speed= Environnement::scale/6;
+	int speed= Environnement::scale/5;
 	float hitbox=Environnement::scale/2; 
 	
 public:
@@ -66,21 +66,24 @@ public:
 				//std::cout<<"cannot move"<<std::endl;
 			//bool see_hunter=see_hunter_2();
 			bool see=see_chasseur();
-			if (see == 1){
+			//if (see == 1){
 				//std::cout<<"Peakaboo! "<<std::endl;
-				bool obstacles=check_obstacles();
+				//bool obstacles=check_obstacles();
 				//std::cout<<"Obstacles? "<< obstacles <<std::endl;
-				if (obstacles==1){
+				//if (obstacles==1){
 					//std::cout<<"No Obstacles! "<<std::endl;
-					std::cout<<"Peakaboo! "<<std::endl;
+					//std::cout<<"Peakaboo! "<<std::endl;
 					
-				}	
-			}
+				//}	
+			//}
 		
-			else if (see == 0){
+			//else if (see == 0){
 				//std::cout<<"Not visible!"<<std::endl;
-			}
-			//std::cout<<_angle<<std::endl;
+			//}
+			//if ((_angle>360) or (_angle<0)){
+			//	std::cout<<_angle<<std::endl;	
+			//}
+			std::cout<<_angle<<std::endl;
 			assert ((_angle<=360) and (_angle>=0));
 			move(dx, dy);
 		
@@ -314,7 +317,8 @@ public:
 		
 		if (angle_diff > 180)
 			angle_diff = 360 - angle_diff;
-		//std::cout<<(int)angle_diff<<std::endl;
+
+		//std::cout<<_angle<<std::endl;
 		// Check if the hunter is within the vision angle of the monster
 		//std::cout<<angle_diff<<std::endl;
 		return  ((-3<=angle_diff) && (angle_diff <=3)); //we introduce some slack values
