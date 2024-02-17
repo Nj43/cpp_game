@@ -1,5 +1,5 @@
-#include "Gardien.h"
 #include <stdio.h>
+#include "Gardien.h"
 #include "Mover.h"
 #include "Chasseur.h"
 #include "Labyrinthe.h"
@@ -82,6 +82,7 @@ void Gardien::update(){
 			else if (see == 0){
 				//std::cout<<"Not visible!"<<std::endl;
 			}
+			cout << "_Angle : "<<_angle << "\n";
 			assert ((_angle<=360) and (_angle>=0));
 			move(dx, dy);
 	
@@ -105,8 +106,6 @@ void Gardien::fire(int angle_vertical){
             _fb -> init (_x, _y, 10., angle_vertical, _angle);
         }
     }
-
-
 }
 
 
@@ -152,36 +151,101 @@ bool Gardien::move (double dx, double dy){
 		//TODO: if we set the speed parameter to scale/1 this works and the guards dont run into each other
 		//in any other case (if we reduce the speed) we will run through other guards. Find out why and fix
 		//if we have time
+
+
+		
+		/*
+		std::cout<<"Hitbox: "<<hitbox<<std::endl;
+		std::cout<<"Speed: "<<speed<<std::endl;
+		std::cout<<"Delta x: "<<dx<<"  Delta y: "<<dy<<std::endl;
+		std::cout<<"Original _x: "<<_x<<"  Original _y: "<<_y<<std::endl;
+		std::cout<<"dx*speed="<<dx*speed<<"  dy*speed="<<dy*speed<<std::endl;
+		std::cout<<"((dy>0)-(dy<0))"<<((dy>=0)-(dy<0))<<std::endl;
+		*/
 		int new_x=(_x+dx*speed)/Environnement::scale;
 
 		//however, this is going to be the field that I need to check
-		int checkbox_x = (_x+dx*Environnement::scale)/Environnement::scale;
+		int checkbox_x_a = (_x+dx*speed+((dx>=0)-(dx<0))*hitbox)/Environnement::scale;
+		//int checkbox_x_b = (_x+dx*speed+dx/std::abs(dx)*hitbox)/Environnement::scale;
 		
 		//std::cout<<"old x: "<<_x/Environnement::scale<<std::endl;
 		//std::cout<<"new x: "<<new_x<<std::endl;
         int new_y=(_y+dy*speed)/Environnement::scale;
-		int checkbox_y = (_y+dy*Environnement::scale)/Environnement::scale;
+		//int checkbox_y = (_y+dy*Environnement::scale)/Environnement::scale;
+		int checkbox_y_a = (_y+dy*speed+((dy>=0)-(dy<0))*hitbox)/Environnement::scale;
 		//std::cout<<"True new x and y: "<<
-		std::cout<<"Rounded true movement: ("<<new_x<<","<<new_y<<")"<<std::endl;
-		std::cout<<"Checkbox: ("<<checkbox_x<<","<<checkbox_y<<")"<<std::endl;
+		//std::cout<<"Rounded true movement: ("<<new_x<<","<<new_y<<")"<<std::endl;
+		//std::cout<<"Checkbox: ("<<checkbox_x<<","<<checkbox_y<<")"<<std::endl;
 
 		
 		//std::cout<<"new y: "<<new_y<<std::endl;
 		bool empty=_l -> data ((int)(new_x),(int)(new_y));
-		bool changed_x=new_x != (int)(_x/Environnement::scale);
-		bool changed_y=new_y != (int)(_y/Environnement::scale);
-		
+		bool empty_checkbox=_l -> data ((int)(checkbox_x_a),(int)(checkbox_y_a));
+
+		//std::cout<<"Element in front? "<<empty<<"  Element in Checkbox? "<<empty_checkbox<<std::endl;
+		bool changed_x= new_x != (int)(_x/Environnement::scale); 
+		bool changed_y= new_y != (int)(_y/Environnement::scale);
+
+		bool changed_checkbox_x = checkbox_x_a !=(int)(_x/Environnement::scale); 
+		bool changed_checkbox_y = checkbox_y_a !=(int)(_y/Environnement::scale); 
+		//std::cout<<"Changed x or y? "<<((empty!=0) and (changed_x or changed_y))<<std::endl;
+		//std::cout<<"Changed x"
 		if ((new_x<0) || (new_y<0) || (new_y >= _l->height()) || (new_x >= _l->width())){
+			//std::cout<<"new x: "<<new_x<<"new y: "<<new_y<<std::endl;
+
 			return false;
 		}
 		//if something is in the way, check if it is us (no change in x or y, we are moving within a field)
 		//If it is us in the way -> just move, if not  
-		if((empty!=0)){
+		if((empty_checkbox!=0)){
+			
+			if ((changed_checkbox_x or changed_checkbox_y)){
+				//std::cout<<"Checkox Alert!"<<std::endl;
+				//std::cout<<checkbox_x_a<<std::endl;
+				if ((std::abs(dx)>0.01) or (std::abs(dy)>0.01)){
+					//move(dx/2, dy/2);
+					//std::cout<<"Somethings in the way at: ("<<new_x<<","<<new_y<<")"<<std::endl;
 
-			if ((changed_x or changed_y)){
+				
+				//Change angle and dont move forward
+				std::mt19937 gen(rd()); // seed the generator
+				std::uniform_int_distribution<> wall_distr(-90, 90);
+				int wall_delta=wall_distr(gen);
+
+
+				if((_angle+wall_delta)<=0){
+					//std::cout<<"Here: original angle: "<<_angle<<"  new angle: "<<wall_delta<<std::endl;
+					_angle+=abs(wall_delta);
+				}
+				else if((_angle+wall_delta)>=360){
+					_angle=0+(360-_angle);
+				}
+				else{
+					_angle+=wall_delta; //_angle+90; //run into wall then change direction
+				}
+
+	
+				
+
+				//_angle=-180;
+				return false;
+				}
+				
+			}
+		}
+		/*
+		if((empty==1)){
+			//std::cout<<"In here"<<std::endl;
+			//if(((empty != 0) and ((new_x != (int)(_x/Environnement::scale)) or (new_y != (int)(_y/Environnement::scale))))){
+			//std::cout<<"Empty? "<<<<std::endl;
+			//std::cout<<"_X and _Y: ("<<_x<<","<<_y<<") With indices: ("<<(int)(_x/Environnement::scale)<<","<<(int)(_y/Environnement::scale)<<")"<<std::endl;
+			
+			if ((changed_x or changed_y) or (changed_checkbox_x or changed_checkbox_y)){
+				
 				
 				std::cout<<"Somethings in the way at: ("<<new_x<<","<<new_y<<")"<<std::endl;
 
+				
 				//Change angle and dont move forward
 				std::mt19937 gen(rd()); // seed the generator
 				std::uniform_int_distribution<> wall_distr(-90, 90);
@@ -197,32 +261,44 @@ bool Gardien::move (double dx, double dy){
 				else{
 					_angle+=wall_delta; //_angle+90; //run into wall then change direction
 				}
+				
+
+				//_angle=-180;
 				return false;
 			}
+			
 
-			else{
+			//else{
+				//std::cout<<"move without something in the way"<<std::endl;
+				//Update the matrix
+				//std::cout<<"We have left a certain point in the matrix!"<<std::endl;
+				//std::cout<<"Set 1 to: ("<<(int) new_x<<","<<(int) new_y<<")"<<std::endl;
 
-				((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, '1'); //update the new position
-				((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), '\0');
-				//move the guard
-				_x+=dx*speed; ///Environnement::scale;
-				_y+=dy*speed; ///Environnement::scale;
-				return true;
-			}
-
-		}
-		else{
-			if ((changed_x or changed_y)){
-				((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, 1); //update the new position
-				((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
-			}
+			((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, 1); //update the new position
+			((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
+			
+			//move the guard
 			_x+=dx*speed; ///Environnement::scale;
 			_y+=dy*speed; ///Environnement::scale;
 			return true;
+			//}
+			//printArray((Labyrinthe *)_l->_data, _l->width(), _l->height());
+		}*/
+		
+
+		//if nothing is in the way, move
+		//else{
+		if ((changed_x or changed_y)){
+			//std::cout<<"We have left a certain point in the matrix!"<<std::endl;
+			//std::cout<<"Set 1 to: ("<<(int) new_x<<","<<(int) new_y<<")"<<std::endl;
+			((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, 1); //update the new position
+			((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
 		}
-	return false;
-	
-	}
+		_x+=dx*speed; ///Environnement::scale;
+		_y+=dy*speed; ///Environnement::scale;
+		return true;
+		//}
+	return false;}
 
 
 
