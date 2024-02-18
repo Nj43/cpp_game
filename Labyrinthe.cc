@@ -40,12 +40,14 @@ int Labyrinthe::getTresorY(){
 	return _treasor._y;
 }
 
+/**
+ * Function to transpose a matrix
+ * @param filename name of the file where the labyrinth map is stored 
+ *
+ * @returns vector containing all the objects of the game and their respective positions (start and end positions for walls
+ * and pictures)
+ */
 
-void printMatrix(const std::vector<std::string>& matrix) {
-    for (const auto& row : matrix) {
-        std::cout << row << std::endl;
-    }
-}
 std::vector<std::string> transposeMatrix(const std::vector<std::string>& matrix, int height, int width) {
     std::vector<std::string> transposedMatrix(width, std::string(height, ' ')); // Swap width and height
     for (int row = 0; row < height; ++row) {
@@ -59,6 +61,17 @@ std::vector<std::string> transposeMatrix(const std::vector<std::string>& matrix,
 }
 
 
+/**
+ * Function to read in the map from a given file. The functions starts by initializing a vector to store the coordinates 
+ * for every object in the game. Then, the file is read in and horizontal walls and picutures, as well as all other objects 
+ * stored in their respective vectors. Then, the lines are transposed using the transposeMatrix function and the transposed lines
+ * are read in, storing vertical lines and posters. In the end, all objects are added to a vector and the vector returned.
+ * 
+ * @param filename name of the file where the labyrinth map is stored 
+ *
+ * @returns vector containing all the objects of the game and their respective positions (start and end positions for walls
+ * and pictures)
+ */
 
 std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* filename){
 	//First, we need to read in the file and store the necessary elements for the map
@@ -67,19 +80,16 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 	std::vector<std::vector<std::vector <int>>> horizontalWalls;
 	std::vector<std::vector<std::vector<int>>> verticalWalls;
 	std::vector<std::vector<std::vector<int>>> Walls;
-
-	std::vector<std::vector<std::vector <int>>> guards; //this is a weird type but because it has to fit the function, I have to add an unnecessary dimension
+	std::vector<std::vector<std::vector <int>>> guards; 
 	std::vector<std::vector<std::vector <int>>> boxes;
 	std::vector<std::vector<std::vector <int>>> pictures_b;
 	std::vector<std::vector<std::vector <int>>> pictures_a;
 	std::vector<std::vector<std::vector <int>>> treasure;
 	std::vector<std::vector<std::vector <int>>> chasseur_pos;
-	//std::cout<<"Size of Pictures: "<< pictures_a.size()<<std::endl;
 	std::vector<std::vector<int>> plusIndices;
 	int longestRow=0;
-	//int guard_counter=0;
 	int lineCounter=0;
-	int plusIndex = 0; //we need to start with 1 to make the % questions work
+	int plusIndex = 0; 
 
 
 	if (file.is_open()){
@@ -104,22 +114,17 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 				    pos++;
 				    plusIndex++;
 				}
-
 				for (size_t i = 0; i < line.length(); ++i) {
                 	char c = line[i];
 					char before=line[i-1];
-					char after=line[i-1];
-					//std::cout<<c<<std::endl;
-					//	std::cout<<c<<std::endl;
+					char after=line[i+1];
 					if(c=='G'){
 						
-						guards.push_back({{lineCounter, static_cast<int>(i)}}); //because we have to fit function signature, this we have an unnecessary dimension, maybe change at end
-						//guard_counter++;
+						guards.push_back({{lineCounter, static_cast<int>(i)}}); 
 					}
 					else if(c=='C'){
 						
-						chasseur_pos.push_back({{lineCounter, static_cast<int>(i)}}); //because we have to fit function signature, this we have an unnecessary dimension, maybe change at end
-						//guard_counter++;
+						chasseur_pos.push_back({{lineCounter, static_cast<int>(i)}}); 
 					}
 					
 					else if(c=='x'){
@@ -138,7 +143,6 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 					
 				}
 				lineCounter++; 
-				//std::cout<<"here"<<std::endl;
 			}
 			
 			
@@ -148,20 +152,14 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 
 
 	std::vector<std::string> transposedMap=transposeMatrix(lines, lineCounter, longestRow);
-
-
 	for (size_t columnIndex=0; columnIndex < transposedMap.size(); columnIndex++){
 		size_t columnPos = 0;
 		int columnPlusIndex = 1;
 		std::vector<std::vector<int>> columnPlusIndices;
-
-		//std::cout<<"here"<<std::endl;
 		while ((columnPos = transposedMap[columnIndex].find('+', columnPos)) != std::string::npos) {
 			columnPlusIndices.push_back({static_cast<int>(columnPos), static_cast<int>(columnIndex)});
-
-		    	//we need to check if the next character after a plus is a - symbol, if yes, then there is another wall coming
+		    //we need to check if the next character after a plus is a | symbol, if yes, then there is another wall coming
 		    if(transposedMap[columnIndex][columnPos-1] == '|' || transposedMap[columnIndex][columnPos-1] == '+'){
-				//std::cout<<"Stored indices: "<<columnPlusIndices[columnPlusIndex-2][0]<<", "<<columnPlusIndices[columnPlusIndex-1][0]<<std::endl;
 				Walls.push_back({columnPlusIndices[columnPlusIndex-2], columnPlusIndices[columnPlusIndex-1]});
 		    }
 		    columnPos++;
@@ -172,73 +170,57 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
             char c = transposedMap[columnIndex][i];
 			char before=transposedMap[columnIndex][i-1];
 			char after=transposedMap[columnIndex][i+1];
-			//std::cout<<"Character c: "<<c<<std::endl;
-			//std::cout<<"Column Index: "<<columnIndex<<std::endl;
 			if (c=='a' && (before == '|' || after == '|')){
-				//std::cout<<"Transposed X coordinate: "<< static_cast<int>(i) << " Transposed Y coordinate: " <<columnIndex<<std::endl;
 				pictures_a.push_back({{static_cast<int>(i), static_cast<int>(columnIndex)}, {static_cast<int>(i)-2, static_cast<int>(columnIndex)}});
 			}
-
 			if (c=='b' && (before == '|' || after == '|')){
-				//std::cout<<"Transposed X coordinate: "<< static_cast<int>(i) << " Transposed Y coordinate: " <<columnIndex<<std::endl;
 				pictures_b.push_back({{static_cast<int>(i) ,static_cast<int>(columnIndex)}, {static_cast<int>(i)-2, static_cast<int>(columnIndex)}});
 			}
 		}
-
 	}
-
-
-	return {Walls, guards, chasseur_pos, boxes, pictures_a, pictures_b, treasure}; //, pictures_a_x,pictures_b_y, treasure};//, treasure, pictures_a, pictures_b};
-}
-void printArray(char** array, int width, int height) {
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            std::cout << static_cast<int>(array[y][x]) << " "; // Print the value of each element
-        }
-        std::cout << std::endl; // Move to the next line after printing each row
-    }
+	return {Walls, guards, chasseur_pos, boxes, pictures_a, pictures_b, treasure}; 
 }
 
-
+/**
+ * Constructor of the Labyrinthe class. It will call the create_labyrinthe function to read in the 
+ *information from the map and store it in the given member variables of the Labyrinthe class. 
+ * 
+ * @param filename name of the file where the labyrinth map is stored 
+ */
 
 Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 {
-
 	std::vector<std::vector<std::vector<std::vector<int>>>> all_data=createLabyrinth(filename);
-
-	//first, place the horizontal walls
+	//Initiate the member variables arrays
 	_nwall = all_data[0].size(); 
 	_walls = new Wall [_nwall];
 
-	// 3 caisses.
 	_nboxes = all_data[3].size();
 	_boxes = new Box [_nboxes];
-	// 2 marques au sol.
 	_nmarks = 1;
 	_marks = new Box [_nmarks];
 
-	// 3. placer les affiches; Attention: pour des raisons de rapport d'aspect,
-	// les affiches doivent faire 2 de long)
 	_npicts = all_data[4].size() + all_data[5].size();
 	_picts = new Wall [_npicts];
 	
-
+	//Store the picture objects of type a (peace signs) and add their x and y values
 	for(int i=0; i<static_cast<int>(all_data[4].size()); i++){
 		_picts [i]._x1 =  all_data[4][i][0][0]; _picts [i]._y1 =all_data[4][i][0][1];
 		_picts [i]._x2 = all_data[4][i][1][0]; _picts [i]._y2 = all_data[4][i][1][1];	
-		_picts [i]._ntex = 0; 	
+		_picts [i]._ntex = 0; 	 //pictures of type a will be peace signs
 	}
-	
+	//Store the picture objects of type b (cars) and add their x and y values
 	for(int j=all_data[4].size(); j<static_cast<int>((all_data[4].size()+all_data[5].size())); j++){
 		int i = j-all_data[4].size();
 		_picts [j]._x1 =  all_data[5][i][0][0]; _picts [j]._y1 =all_data[5][i][0][1];
 		_picts [j]._x2 = all_data[5][i][1][0]; _picts [j]._y2 = all_data[5][i][1][1];	
 		char	tmp [128];
-		sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg"); 
+		sprintf (tmp, "%s/%s", texture_dir, "voiture.jpg");  //pictures of type b will be cars
 		_picts [j]._ntex = wall_texture (tmp);	
 
 	}
 	
+	//Create the _data array to store guards, walls, boxes and the hunter
 	_data = new char* [height ()];
     for (int i = 0; i < height (); ++i) {
         _data[i] = new char[width ()];
@@ -249,7 +231,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
         std::memset(_data[y], EMPTY, width () * sizeof(char));
     }
 
-
+	//Read in the walls' starting and end points and draw the lines between the two points in the matrix
 	for (int i=0; i< _nwall; i++){
 		_walls [i]._x1 = all_data[0][i][0][0]; _walls [i]._y1 = all_data[0][i][0][1]; //start point
 		_walls [i]._x2 = all_data[0][i][1][0]; _walls [i]._y2 = all_data[0][i][1][1]; //end point
@@ -262,16 +244,18 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
         }
 	}
 	
+	//Place the boxes by setting the _data array to 1 at their positions
 	for(int i=0; i<_nboxes; i++){
 		_boxes[i]._x=all_data[3][i][0][0]; _boxes[i]._y=all_data[3][i][0][1]; _boxes [i]._ntex = 0;
 		_data [_boxes [i]._x][_boxes [i]._y] = 1 ;
 	}
 	
+	//Place the treasure
 	_treasor._x = all_data[6][0][0][0];
 	_treasor._y = all_data[6][0][0][1];	
 	_data [_treasor._x][_treasor._y] = 1;
 
-	// 9. allouer le chasseur et les 4 gardiens.
+	//Place the hunter (_guards[0]) and guards. Render the guards appearances. 
 	_nguards = all_data[1].size() + 1; //get the number of guards
 	_guards = new Mover* [_nguards];
 	_guards [0] = new Chasseur (this); _guards [0] -> _x=scale*static_cast<float>(all_data[2][0][0][0]); _guards [0] ->_y=scale*static_cast<float>(all_data[2][0][0][1]);

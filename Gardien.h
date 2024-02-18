@@ -19,10 +19,6 @@ private :
 	bool attaque;
 	int _mode;//0 is patrol mode and 1 is attack mode
 	int update_counter; //to count and not update movement at every step
-	int fps_counter;
-	int timer; //to count and not update movement at every step
-	float moveRadius; //maximum range that the guards can move in one update
-	int dangle; //maximum angle that the guardians can turn in one update
 	int speed;
 	float hitbox;
 

@@ -35,10 +35,6 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
     this->_lastFB = std::chrono::system_clock::now();
 	this->_lastHeal = std::chrono::system_clock::now();
     this->update_counter=0; //to count and not update movement at every step
-	this->fps_counter=0;
-	this->timer=0; //to count and not update movement at every step
-	this->moveRadius=1; //maximum range that the guards can move in one update
-	this->dangle=0; //maximum angle that the guardians can turn in one update
 	this->speed=Environnement::scale/10;
 	this->hitbox=Environnement::scale/2;
 	this->_mode=0; //patrol mode by default
@@ -47,8 +43,8 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
 
 
 /**
- * Function that kills the gardian. 
- * It makes the gardian stay on the ground but empty the data case so that the chasseur can move through.
+ * Function that kills the guard. 
+ * It makes the guard stay on the ground but empty the data case so that the chasseur can move through.
  */
 void Gardien::kill_gardien(){
     this->alive = false;
@@ -59,8 +55,8 @@ void Gardien::kill_gardien(){
 
 
 /**
- * Function that decreases the life point of the gardian. 
- * If its life point is less than 0 it means the guardian is dead.
+ * Function that decreases the life point of the guard. 
+ * If its life point is less than 0 it means the guard is dead.
  */
 void Gardien::decrease_LP(){
     this->_LP -= 50; //it decreases by 50 points
@@ -112,32 +108,25 @@ void Gardien::update()
 	}
 	
 	float angle_difference=see_chasseur(); 
-	if ((-30<=angle_difference) && (angle_difference <=30)) 
-	{
-		this->_mode = 1; //this is the attack mode
-	}else{
-		this->_mode = 0; //this is the patrol mode
-	}
-
-    timer+=1; 
-	update_counter+=1;
-	fps_counter+=1;
-	if (update_counter==1 && this->isAlive() == true){
+	if (this->isAlive() == true){
 		float rad= 1;
 
 		double dx=-sin((float)((float)_angle/180)*M_PI) * rad; //needs to be "-" because of our coordinate system 
 		double dy=cos((float)((float)_angle/180)*M_PI) * rad;
 
-		if (this->_mode == 1){
+		if ((-30<=angle_difference) && (angle_difference <=30)){
 			bool obstacles=check_obstacles();
 			if (obstacles==1){
 				_angle += angle_difference;
 				this->fire(0);
+				this->_mode = 1;
+			}
+			else{
+				this->_mode = 0;
 			}	
 		}
+		
 		move(dx, dy);
-
-		update_counter=0;	
 	}
 }
 
@@ -182,7 +171,7 @@ double Gardien::hit_probability() {
 
 
 /**
- * Fuction that process how the lauched fireball work
+ * Fuction that process how the launched fireball work
  * 
  * @param dx changes of the fireball in the x axis
  * @param dy changes of the fireball in the y axis
@@ -234,7 +223,7 @@ bool Gardien::process_fireball (float dx, float dy)
 
 
 /**
- * Fuction that process how the lauched fireball work
+ * Fuction that process how the launched fireball works
  * 
  * @param dx changes of the position of the gardian in the x axis
  * @param dy changes of the position of the gardian in the y axis
@@ -248,18 +237,18 @@ bool Gardien::move (double dx, double dy){
 	//the new position in y axis
 	int new_y=(_y+dy*speed)/Environnement::scale;
 
-	//however, this is going to be the field that I need to check
-	int checkbox_x_a = (_x+dx*speed+((dx>=0)-(dx<0))*hitbox)/Environnement::scale;
-	int checkbox_y_a = (_y+dy*speed+((dy>=0)-(dy<0))*hitbox)/Environnement::scale;
+	//We tried to implement a collider that is bigger than the 
+	//int checkbox_x_a = (_x+dx*speed+((dx>=0)-(dx<0))*hitbox)/Environnement::scale;
+	//int checkbox_y_a = (_y+dy*speed+((dy>=0)-(dy<0))*hitbox)/Environnement::scale;
 
 	bool empty=_l -> data ((int)(new_x),(int)(new_y));
-	bool empty_checkbox=_l -> data ((int)(checkbox_x_a),(int)(checkbox_y_a));
+	//bool empty_checkbox=_l -> data ((int)(checkbox_x_a),(int)(checkbox_y_a));
 
 	bool changed_x= new_x != (int)(_x/Environnement::scale); 
 	bool changed_y= new_y != (int)(_y/Environnement::scale);
 
-	bool changed_checkbox_x = checkbox_x_a !=(int)(_x/Environnement::scale); 
-	bool changed_checkbox_y = checkbox_y_a !=(int)(_y/Environnement::scale); 
+	//bool changed_checkbox_x = checkbox_x_a !=(int)(_x/Environnement::scale); 
+	//bool changed_checkbox_y = checkbox_y_a !=(int)(_y/Environnement::scale); 
 	
 	if ((new_x<0) || (new_y<0) || (new_y >= _l->height()) || (new_x >= _l->width())){
 		return false;
@@ -273,7 +262,7 @@ bool Gardien::move (double dx, double dy){
 			if ((std::abs(dx)>0.01) or (std::abs(dy)>0.01)){
 
 			//Change angle and dont move forward
-			std::mt19937 gen(rd()); // seed the generator
+			std::mt19937 gen(rd());
 			std::uniform_int_distribution<> wall_distr(-90, 90);
 			int wall_delta=wall_distr(gen);
 
@@ -284,7 +273,7 @@ bool Gardien::move (double dx, double dy){
 				_angle=0+(360-_angle);
 			}
 			else{
-				_angle+=wall_delta; //_angle+90; //run into wall then change direction
+				_angle+=wall_delta; //run into wall then change direction
 			}
 			return false;
 			}
@@ -302,9 +291,9 @@ bool Gardien::move (double dx, double dy){
 
 
 /**
- * Fuction that calculates the angle of the gardian
+ * Fuction that calculates the angle of the guard
  * 
- * @return the angle of the gardian
+ * @return the angle difference between guards angle and the hunter in relation to guard
  */
 float Gardien::see_chasseur(){
 
@@ -343,7 +332,7 @@ float Gardien::see_chasseur(){
 
 
 /**
- * Fuction that check if there are obstacles blocking the gardians
+ * Fuction that check if there are obstacles blocking the guards
  * 
  * @return true if there are obstacles, false otherwise
  */

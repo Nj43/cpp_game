@@ -22,7 +22,6 @@ public:
 	int getTresorX();
 	int getTresorY();
 	void get_data(int i, int j);
-	void set_data2(int i, int j, char value);
 };
 
 #endif

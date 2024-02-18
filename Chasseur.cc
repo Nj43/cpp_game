@@ -54,7 +54,7 @@ void Chasseur::increase_LP_chasseur(){
 		if(aug <= 100){ //check if it doesn't exceed the maximum life point of the chasseur
 			this->_LP = aug;
 			_lastHeal_C = std::chrono::system_clock::now(); //the most recent heal time is saved
-			message ("Chasseur got healded.");
+			message ("Chasseur got healed.");
 		}
 	}
 	
