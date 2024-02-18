@@ -14,6 +14,7 @@ private :
 	int _LP;
 	bool alive;
 	std::chrono::time_point<std::chrono::system_clock> _lastFB;
+	std::chrono::time_point<std::chrono::system_clock> _lastHeal;
 	std::random_device rd; // obtain a random number from hardware
 	bool attaque;
 	int _mode;//0 is patrol mode and 1 is attack mode
@@ -24,6 +25,7 @@ private :
 	int dangle; //maximum angle that the guardians can turn in one update
 	int speed;
 	float hitbox;
+
 
 public:
 	
@@ -43,11 +45,12 @@ public:
 	bool process_fireball (float dx, float dy);
 	void kill_gardien(void);
 	void decrease_LP(void);
+	void increase_LP(void);
 	bool isAlive(void);
 	float see_chasseur(void);
 	bool check_obstacles();
-	double hit_probability(double coefficient);	
-	void destruct_dead_gardien();
+	double hit_probability();	
+
 
 };
 

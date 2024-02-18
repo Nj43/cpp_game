@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "Mover.h"
 #include "Sound.h"
+#include <ctime>
+#include <chrono>
 
 class Labyrinthe;
 
@@ -13,6 +15,7 @@ private:
 	bool move_aux (double dx, double dy);
 	bool alive;
 	int _LP;
+	std::chrono::time_point<std::chrono::system_clock> _lastHeal_C;
 public:
 	// les sons.
 	static Sound*	_hunter_fire;	// bruit de l'arme du chasseur.
@@ -37,6 +40,7 @@ public:
 	bool isAlive();
 	bool win_game();
 	void decrease_LP_chasseur();
+	void increase_LP_chasseur();
 };
 
 #endif

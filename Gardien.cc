@@ -17,7 +17,9 @@
 #include <iostream>
 using namespace std;
 
- 
+#define RECOVERY_TIME 10.0
+#define COEFFICIENT 0.5
+
 
 Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l, modele)
 {
@@ -27,8 +29,8 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
 
     this->_LP = _LP;
 	this->alive = true;
-    _lastFB = std::chrono::system_clock::now();
-    attaque = false;
+    this->_lastFB = std::chrono::system_clock::now();
+	this->_lastHeal = std::chrono::system_clock::now();
     this->update_counter=0; //to count and not update movement at every step
 	this->fps_counter=0;
 	this->timer=0; //to count and not update movement at every step
@@ -39,13 +41,7 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
 	this->_mode=0; //patrol mode by default
 }
 
-void Gardien::destruct_dead_gardien()
-{
-	if(this->alive == false)
-	{
-		this->rester_au_sol();
-	}
-}
+
 
 
 void Gardien::kill_gardien(){
@@ -54,15 +50,34 @@ void Gardien::kill_gardien(){
 	
 }
 
+
 void Gardien::decrease_LP(){
     this->_LP -= 50;
 	if (this->_LP <= 0){
 		this->kill_gardien();
         message ("I'm dead.");
     }else{
-        message ("Aïe ! I only have %d LP now.", (int) this->_LP);
+        message ("Aïe ! Gardian only has %d LP now.", (int) this->_LP);
         this->tomber();
     }
+}
+
+void Gardien::increase_LP(){
+	std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _lastHeal;
+	if ((elapsed_seconds).count() > RECOVERY_TIME)
+	{
+		if (this->_LP > 0)
+		{
+			int aug = this->_LP + 30;
+			if(aug <= 200){
+				this->_LP = aug;
+				_lastHeal = std::chrono::system_clock::now();
+				message ("Gardian got healded.");
+			}
+			
+    	}
+	}
+	
 }
 
 bool Gardien::isAlive(){
@@ -70,7 +85,8 @@ bool Gardien::isAlive(){
 }
 
 void Gardien::update(){
-
+	increase_LP();
+	
 	float angle_difference=see_chasseur();
 	if ((-30<=angle_difference) && (angle_difference <=30)) 
 	{
@@ -119,12 +135,12 @@ void Gardien::fire(int angle_vertical){
     }
 }
 
-double Gardien::hit_probability(double coefficient) {
+double Gardien::hit_probability() {
 	int rest_LP = this->_LP;
 	// Calculate hit probability based on health and coefficient
 	//cout<<"rest_LP : " << rest_LP << "\n";
 	//cout<<"calcul : " << coefficient * 100/rest_LP << "\n";
-	return max(0.1, 1.0 - (coefficient * 100/rest_LP));
+	return max(0.1, 1.0 - (COEFFICIENT * 100/rest_LP));
 }
 
 
@@ -153,8 +169,7 @@ bool Gardien::process_fireball (float dx, float dy)
 		//the worse his shot. The coefficient that relates the health of a guard to his ability to shoot 
 		//accurately is also a parameter of the program.
 
-		double coefficient = 0.4;
-		double probability = hit_probability(coefficient);
+		double probability = hit_probability();
         double random = ((double) rand() / (RAND_MAX));
 		//cout<<"before Probability : " << probability << "\n";
 		//we get the gardien that is at (x,y) which means that it is hit by the fireball

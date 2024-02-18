@@ -28,6 +28,7 @@ Environnement* Environnement::init (char* filename)
 
 #define	LAB_WIDTH	100
 #define	LAB_HEIGHT	100
+#define HEALTH_G 200
 
 int Labyrinthe::getTresorX(){
 
@@ -278,7 +279,7 @@ Labyrinthe::Labyrinthe (char* filename) : _width(LAB_WIDTH), _height(LAB_HEIGHT)
 	
 	for (int g = 1; g < _nguards; g++){
 		std::cout<<g << monster[g-1]<<std::endl;
-		_guards[g] = new Gardien (this, monster[g-1], 200); _guards[g] -> _x = scale*static_cast<float>(all_data[1][g-1][0][0]); _guards[g] -> _y = scale*static_cast<float>(all_data[1][g-1][0][1]);
+		_guards[g] = new Gardien (this, monster[g-1], HEALTH_G); _guards[g] -> _x = scale*static_cast<float>(all_data[1][g-1][0][0]); _guards[g] -> _y = scale*static_cast<float>(all_data[1][g-1][0][1]);
 		_data [(int)(_guards[g]->_x/scale)][(int)(_guards[g]->_y/scale)] = 1;
 
 	}

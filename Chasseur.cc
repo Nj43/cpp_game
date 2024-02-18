@@ -5,6 +5,9 @@
 using namespace std;
 
 
+#define HEALTH_C 100
+#define RECOVERY_TIME_C 10.0
+
 /*
  *	Constructeur.
  */
@@ -17,8 +20,9 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 	if (_wall_hit == 0)
 		_wall_hit = new Sound ("sons/hit_wall.wav");
 
-	this->_LP = 100;
+	this->_LP = HEALTH_C;
 	this->alive = true;
+	this->_lastHeal_C = std::chrono::system_clock::now();
 }
 
 void Chasseur::decrease_LP_chasseur(){
@@ -27,8 +31,26 @@ void Chasseur::decrease_LP_chasseur(){
         message ("I'm dead.");
         partie_terminee(false);
     }else{
-        message ("Aïe ! I only have %d LP now.", (int) this->_LP);
+        message ("Aïe ! Chasseur only has %d LP now.", (int) this->_LP);
     }
+}
+
+void Chasseur::increase_LP_chasseur(){
+	std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _lastHeal_C;
+	if ((elapsed_seconds).count() > RECOVERY_TIME_C)
+	{
+		if (this->_LP > 0)
+		{
+			int aug = this->_LP + 10;
+			if(aug <= 100){
+				this->_LP = aug;
+				_lastHeal_C = std::chrono::system_clock::now();
+				message ("Chasseur got healded.");
+			}
+			
+    	}
+	}
+	
 }
 
 /*
@@ -37,6 +59,7 @@ void Chasseur::decrease_LP_chasseur(){
 
 bool Chasseur::move_aux (double dx, double dy)
 {
+	update();
 	if (EMPTY == _l -> data ((int)((_x + dx) / Environnement::scale), (int)((_y + dy) / Environnement::scale)) or 2 == _l -> data ((int)((_x + dx) / Environnement::scale), (int)((_y + dy) / Environnement::scale)))
 	{
     ((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
@@ -60,6 +83,7 @@ bool Chasseur::win_game()
 
 
 void Chasseur::update (void){ 
+	increase_LP_chasseur();
 	if (win_game()){
 		partie_terminee(true);
 	}
