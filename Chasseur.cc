@@ -27,7 +27,7 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 
 
 /**
- * Function that decreases the life point of the gardian. 
+ * Function that decreases the life point of the guard. 
  * If its life point is less than 0 it means the guardian is dead.
  */
 void Chasseur::decrease_LP_chasseur(){
@@ -109,7 +109,7 @@ bool Chasseur::win_game()
 
 
 /**
- * Fuction that continually updates the state of the Gardian objects over time.
+ * Fuction that continually updates the state of the guard objects over time.
  * 
  */
 void Chasseur::update (void){ 
@@ -156,10 +156,10 @@ bool Chasseur::process_fireball (float dx, float dy)
 		// il y a la place.
 		return true;
 	}else{
-		// collision... (if a gardien is touched then we have to decrease its LP(or kill it))
+		// collision... (if a guard is touched then we have to decrease its LP(or kill it))
 		for (int i = 1; i < this->_l->_nguards; i++)
 		{
-			//how close the fireball exploded to the gardian
+			//how close the fireball exploded to the guard
 			float x_place = (this->_l->_guards[i]->_x - _fb -> get_x ())/ Environnement::scale;
 			float y_place = (this->_l->_guards[i]->_y - _fb -> get_y ())/ Environnement::scale;
 
@@ -169,7 +169,7 @@ bool Chasseur::process_fireball (float dx, float dy)
 			//accurately is also a parameter of the program.
 			double probability = hit_probability();
 			
-			//it the fireball exploded close enough to the gardian then gardian lost its life point
+			//it the fireball exploded close enough to the guard then guard lost its life point
 			//the "closeness" is caculated based on the precision of the chasseur's aim and its life point.
 			if ((abs(x_place) <= 1*probability) && (abs(y_place) <= 1*probability) &&  (((Gardien*)(this->_l->_guards[i]))->isAlive() == true))
 			{
@@ -215,7 +215,7 @@ void Chasseur::right_click (bool shift, bool control)
 }
 
 /**
- * Fuction that checks if the gardian is alive
+ * Fuction that checks if the guard is alive
  */
 bool Chasseur::isAlive(){
 	return this->alive;

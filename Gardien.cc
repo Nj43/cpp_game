@@ -44,7 +44,7 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
 
 /**
  * Function that kills the guard. 
- * It makes the guard stay on the ground but empty the data case so that the chasseur can move through.
+ * It makes the guard stay on the ground but empty the data case so that the hunter can move through.
  */
 void Gardien::kill_gardien(){
     this->alive = false;
@@ -60,18 +60,18 @@ void Gardien::kill_gardien(){
  */
 void Gardien::decrease_LP(){
     this->_LP -= 50; //it decreases by 50 points
-	if (this->_LP <= 0){ //if the gardian is dead then kill it
+	if (this->_LP <= 0){ //if the guard is dead then kill it
 		this->kill_gardien();
         message ("I'm dead.");
     }else{
-        message ("Aïe ! Gardian only has %d LP now.", (int) this->_LP);
-        this->tomber();  //otherwise the gardian fall down 
+        message ("Aïe ! Guard only has %d LP now.", (int) this->_LP);
+        this->tomber();  //otherwise the guard fall down 
     }
 }
 
 /**
- * Function that increases the life point of the gardian
- * when the gardian goes a certain amount of time without suffering a wound
+ * Function that increases the life point of the guard
+ * when the guard goes a certain amount of time without suffering a wound
  */
 void Gardien::increase_LP(){
 	//seconds between last heal time and now
@@ -82,14 +82,14 @@ void Gardien::increase_LP(){
 		if(aug <= 200){ //check if it doesn't exceed the maximum life point of the guard
 			this->_LP = aug;
 			_lastHeal = std::chrono::system_clock::now(); //the most recent heal time is saved
-			message ("Gardian got healded.");
+			message ("Guard got healded.");
 		}
 	}
 }
 
 
 /**
- * Fuction that checks if the gardian is alive
+ * Fuction that checks if the guard is alive
  */
 bool Gardien::isAlive()
 {
@@ -97,7 +97,7 @@ bool Gardien::isAlive()
 }
 
 /**
- * Fuction that continually updates the state of the Gardian objects over time.
+ * Fuction that continually updates the state of the guard objects over time.
  * 
  */
 void Gardien::update()
@@ -140,19 +140,19 @@ void Gardien::fire(int angle_vertical){
     float theta = std::atan2((_l->_guards[0]->_x - _x),(_l->_guards[0]->_y - _y)); //the angle in radian
 	float angleF = (180 * theta) / M_PI; // the angle in degree
     
-	//the gardian can lauch the fireball every 3 seconds
+	//the guard can lauch the fireball every 3 seconds
 	//calculate the time elapsed since the last fireball
     std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _lastFB;
 	
     if ((elapsed_seconds).count() > 3.0) //it has been more than 3 secondes
     {
-		//if the chasseur is alive and the gardian that lauches the fireball is alive
+		//if the hunter is alive and the guard that lauches the fireball is alive
         if (((Chasseur*)(this->_l->_guards[0]))->isAlive()==true && this->isAlive() == true)
         {
             _guard_fire -> play (); //play the sound
             _lastFB = std::chrono::system_clock::now(); //redefine the last time a fireball was launched 
 
-			//lauch the fireball by giving the coordinates of the position of the gardian and the angle of the fireball.
+			//lauch the fireball by giving the coordinates of the position of the guard and the angle of the fireball.
             _fb -> init (_x, _y, 10., angle_vertical, angleF); 
         }
     }
@@ -160,7 +160,7 @@ void Gardien::fire(int angle_vertical){
 
 
 /**
- * Fuction that calculates the hit probability of the gardian given the life point
+ * Fuction that calculates the hit probability of the guard given the life point
  * the less life points it has, the worse his shot
  */
 double Gardien::hit_probability() {
@@ -202,12 +202,12 @@ bool Gardien::process_fireball (float dx, float dy)
 		double probability = hit_probability();
         
 
-		//how close the fireball exploded to the chasseur
+		//how close the fireball exploded to the hunter
 		float x_place = (this->_l->_guards[0]->_x - _fb -> get_x ())/ Environnement::scale;
 		float y_place = (this->_l->_guards[0]->_y - _fb -> get_y ())/ Environnement::scale;
 		
-		//it the fireball exploded close enough to the chasseur then chasseur lost its life point
-		//the "closeness" is caculated based on the precision of the gardian's aim and its life point.
+		//it the fireball exploded close enough to the hunter then hunter lost its life point
+		//the "closeness" is caculated based on the precision of the guard's aim and its life point.
 		if ((abs(x_place) <= 1*probability) && (abs(y_place) <= 1*probability) &&  (((Gardien*)(this->_l->_guards[0]))->isAlive() == true))
 		{
 			((Chasseur*)(this->_l->_guards[0]))->decrease_LP_chasseur(); 	
@@ -225,8 +225,8 @@ bool Gardien::process_fireball (float dx, float dy)
 /**
  * Fuction that process how the launched fireball works
  * 
- * @param dx changes of the position of the gardian in the x axis
- * @param dy changes of the position of the gardian in the y axis
+ * @param dx changes of the position of the guard in the x axis
+ * @param dy changes of the position of the guard in the y axis
  * 
  * @return true if the it can move to the direction dx and dy, false otherwise(blocked by something)
  */
@@ -297,18 +297,18 @@ bool Gardien::move (double dx, double dy){
  */
 float Gardien::see_chasseur(){
 
-	//get the chasseur
+	//get the hunter
 	Mover* hunter = this->_l->_guards[0];
 	
 	int hunterX = hunter->_x / Environnement::scale; //the x-axis position of the hunter
 	int hunterY = hunter->_y / Environnement::scale; //the y-axis position of the hunter
-	float gardianX = this->_x / Environnement::scale; //the x-axis position of the gardian
-	float gardianY = this->_y / Environnement::scale; //the x-axis position of the gardian
+	float gardianX = this->_x / Environnement::scale; //the x-axis position of the guard
+	float gardianY = this->_y / Environnement::scale; //the x-axis position of the guard
 
-	//distance between chasseur and gardian
+	//distance between hunter and guard
 	double dx = hunterX - gardianX;
 	double dy = hunterY - gardianY;
-	// Calculate the angle between the chasseur and the chasseur in degree
+	// Calculate the angle between the hunter and the hunter in degree
 	double angleToNormal = atan2(dy, dx) * 180 / M_PI;
 	
 	//
@@ -340,7 +340,7 @@ bool Gardien::check_obstacles(){
 	//we need to store the points that we cross in a vector
 	std::vector<std::pair<int, int>> points;
 
-	//To follow the chasseur, we first need to find his location and 
+	//To follow the hunter, we first need to find his location and 
 	//from our update function, we will be provided with the angle we are currently in
 	Mover* hunter=this->_l->_guards[0];
 	int hunterX = hunter->_x / Environnement::scale;

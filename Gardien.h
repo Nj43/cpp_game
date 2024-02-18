@@ -11,16 +11,15 @@ class Labyrinthe;
 
 class Gardien : public Mover {
 private :
-	int _LP;
-	bool alive;
+	int _LP; //the life point of the guard
+	bool alive; //true if the guard is alive
 	std::chrono::time_point<std::chrono::system_clock> _lastFB;
 	std::chrono::time_point<std::chrono::system_clock> _lastHeal;
 	std::random_device rd; // obtain a random number from hardware
-	bool attaque;
 	int _mode;//0 is patrol mode and 1 is attack mode
 	int update_counter; //to count and not update movement at every step
-	int speed;
-	float hitbox;
+	int speed; 
+	float hitbox; 
 
 
 public:
