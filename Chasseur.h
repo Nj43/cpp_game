@@ -46,7 +46,7 @@ public:
 	void fire (int angle_vertical);
 	// clic droit.
 	void right_click (bool shift, bool control);
-	bool isAlive();
+	bool is_alive();
 	bool win_game();
 	void decrease_LP_chasseur();
 	void increase_LP_chasseur();

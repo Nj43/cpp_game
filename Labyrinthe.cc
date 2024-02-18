@@ -35,7 +35,7 @@ Environnement* Environnement::init (char* filename)
  *
  * @returns x coordinate of the treasure
  */
-int Labyrinthe::getTresorX(){
+int Labyrinthe::get_tresorX(){
 
 	return _treasor._x;
 }
@@ -45,7 +45,7 @@ int Labyrinthe::getTresorX(){
  *
  * @returns y coordinate of the treasure
  */
-int Labyrinthe::getTresorY(){
+int Labyrinthe::get_tresorY(){
 
 	return _treasor._y;
 }
@@ -62,7 +62,7 @@ int Labyrinthe::getTresorY(){
  * @returns transposed matrix 
  */
 
-std::vector<std::string> transposeMatrix(const std::vector<std::string>& matrix, int height, int width) {
+std::vector<std::string> transpose_matrix(const std::vector<std::string>& matrix, int height, int width) {
     std::vector<std::string> transposedMatrix(width, std::string(height, ' ')); // Swap width and height
     for (int row = 0; row < height; ++row) {
         // Iterate over each column of the original matrix
@@ -78,7 +78,7 @@ std::vector<std::string> transposeMatrix(const std::vector<std::string>& matrix,
 /**
  * Function to read in the map from a given file. The functions starts by initializing a vector to store the coordinates 
  * for every object in the game. Then, the file is read in and horizontal walls and picutures, as well as all other objects 
- * stored in their respective vectors. Then, the lines are transposed using the transposeMatrix function and the transposed lines
+ * stored in their respective vectors. Then, the lines are transposed using the transpose_matrix function and the transposed lines
  * are read in, storing vertical lines and posters. In the end, all objects are added to a vector and the vector returned.
  * 
  * @param filename name of the file where the labyrinth map is stored 
@@ -165,7 +165,7 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 	}
 
 
-	std::vector<std::string> transposedMap=transposeMatrix(lines, lineCounter, longestRow);
+	std::vector<std::string> transposedMap=transpose_matrix(lines, lineCounter, longestRow);
 	for (size_t columnIndex=0; columnIndex < transposedMap.size(); columnIndex++){
 		size_t columnPos = 0;
 		int columnPlusIndex = 1;

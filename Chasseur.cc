@@ -97,8 +97,8 @@ bool Chasseur::move_aux (double dx, double dy)
 bool Chasseur::win_game()
 {
 	//positions of the tresor box on the labyrinthe
-	int x_tresor = ((Labyrinthe*)(this->_l))->getTresorX();
-	int y_tresor = ((Labyrinthe*)(this->_l))->getTresorY();
+	int x_tresor = ((Labyrinthe*)(this->_l))->get_tresorX();
+	int y_tresor = ((Labyrinthe*)(this->_l))->get_tresorY();
 
 	//position of the chasseur
 	int x = this->_x/Environnement::scale;
@@ -114,7 +114,7 @@ bool Chasseur::win_game()
  * 
  */
 void Chasseur::update (void){ 
-	if(this->isAlive() == true){ //check if we can increse the LP
+	if(this->is_alive() == true){ //check if we can increse the LP
 		increase_LP_chasseur(); //increase the LP
 	}
 
@@ -173,7 +173,7 @@ bool Chasseur::process_fireball (float dx, float dy)
 			
 			//it the fireball exploded close enough to the guard then guard lost its life point
 			//the "closeness" is caculated based on the precision of the chasseur's aim and its life point.
-			if ((abs(x_place) <= 1*probability) && (abs(y_place) <= 1*probability) &&  (((Gardien*)(this->_l->_guards[i]))->isAlive() == true))
+			if ((abs(x_place) <= 1*probability) && (abs(y_place) <= 1*probability) &&  (((Gardien*)(this->_l->_guards[i]))->is_alive() == true))
 			{
 				((Gardien*)(this->_l->_guards[i]))->decrease_LP();
 				
@@ -226,6 +226,6 @@ void Chasseur::right_click (bool shift, bool control)
 /**
  * Fuction that checks if the guard is alive
  */
-bool Chasseur::isAlive(){
+bool Chasseur::is_alive(){
 	return this->_alive;
 }

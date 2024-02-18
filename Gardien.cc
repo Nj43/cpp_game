@@ -91,7 +91,7 @@ void Gardien::increase_LP(){
 /**
  * Fuction that checks if the guard is alive
  */
-bool Gardien::isAlive()
+bool Gardien::is_alive()
 {
     return this->alive;
 }
@@ -104,7 +104,7 @@ void Gardien::update()
 {	
 	float angle_difference=see_chasseur(); 
 
-	if (this->isAlive() == true){ //the guard can only move if he is alive
+	if (this->is_alive() == true){ //the guard can only move if he is alive
 		this->increase_LP(); //increase the LP 
 		float rad= 1;
 
@@ -149,7 +149,7 @@ void Gardien::fire(int angle_vertical){
     if ((elapsed_seconds).count() > 3.0) //it has been more than 3 secondes
     {
 		//if the hunter is alive and the guard that lauches the fireball is alive
-        if (((Chasseur*)(this->_l->_guards[0]))->isAlive()==true && this->isAlive() == true)
+        if (((Chasseur*)(this->_l->_guards[0]))->is_alive()==true && this->is_alive() == true)
         {
             _guard_fire -> play (); //play the sound
             _lastFB = std::chrono::system_clock::now(); //redefine the last time a fireball was launched 
@@ -210,7 +210,7 @@ bool Gardien::process_fireball (float dx, float dy)
 		
 		//it the fireball exploded close enough to the hunter then hunter lost its life point
 		//the "closeness" is caculated based on the precision of the guard's aim and its life point.
-		if ((abs(x_place) <= 1*probability) && (abs(y_place) <= 1*probability) &&  (((Gardien*)(this->_l->_guards[0]))->isAlive() == true))
+		if ((abs(x_place) <= 1*probability) && (abs(y_place) <= 1*probability) &&  (((Gardien*)(this->_l->_guards[0]))->is_alive() == true))
 		{
 			((Chasseur*)(this->_l->_guards[0]))->decrease_LP_chasseur(); 	
 		}
