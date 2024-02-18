@@ -47,7 +47,7 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
 void Gardien::kill_gardien(){
     this->alive = false;
     this->rester_au_sol();
-	
+	((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
 }
 
 
