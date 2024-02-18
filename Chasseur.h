@@ -41,6 +41,7 @@ public:
 	bool win_game();
 	void decrease_LP_chasseur();
 	void increase_LP_chasseur();
+	double hit_probability();
 };
 
 #endif

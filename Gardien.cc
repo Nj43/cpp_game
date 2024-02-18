@@ -1,9 +1,4 @@
 #include <stdio.h>
-#include "Gardien.h"
-#include "Mover.h"
-#include "Chasseur.h"
-#include "Labyrinthe.h"
-#include "Sound.h"
 #include <random>
 #include <cmath>
 #include <ctime>
@@ -14,13 +9,21 @@
 #include <vector>
 #include <assert.h>
 
+#include "Gardien.h"
+#include "Mover.h"
+#include "Chasseur.h"
+#include "Labyrinthe.h"
+#include "Sound.h"
+
 #include <iostream>
 using namespace std;
 
-#define RECOVERY_TIME 10.0
-#define COEFFICIENT 0.5
+#define RECOVERY_TIME 12.0 //parameter that determines the time interval between the heal 
+#define COEFFICIENT 0.02 //coefficient that relates the health of a guard to his ability to shoot accurately
 
-
+/**
+ * Call the constructor to initialize variables
+ */
 Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l, modele)
 {
 	_guard_fire = new Sound ("sons/hunter_fire.wav");
@@ -43,56 +46,77 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
 
 
 
-
+/**
+ * Function that kills the gardian. 
+ * It makes the gardian stay on the ground but empty the data case so that the chasseur can move through.
+ */
 void Gardien::kill_gardien(){
     this->alive = false;
     this->rester_au_sol();
+	//empty the data case otherwise, the chaseeur can get stuck 
 	((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
 }
 
 
+/**
+ * Function that decreases the life point of the gardian. 
+ * If its life point is less than 0 it means the guardian is dead.
+ */
 void Gardien::decrease_LP(){
-    this->_LP -= 50;
-	if (this->_LP <= 0){
+    this->_LP -= 50; //it decreases by 50 points
+	if (this->_LP <= 0){ //if the gardian is dead then kill it
 		this->kill_gardien();
         message ("I'm dead.");
     }else{
         message ("Aïe ! Gardian only has %d LP now.", (int) this->_LP);
-        this->tomber();
+        this->tomber();  //otherwise the gardian fall down 
     }
 }
 
+/**
+ * Function that increases the life point of the gardian
+ * when the gardian goes a certain amount of time without suffering a wound
+ */
 void Gardien::increase_LP(){
+	//seconds between last heal time and now
 	std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _lastHeal;
-	if ((elapsed_seconds).count() > RECOVERY_TIME)
+	if ((elapsed_seconds).count() > RECOVERY_TIME) //if more than 8 seconds have elapsed
 	{
-		if (this->_LP > 0)
-		{
-			int aug = this->_LP + 30;
-			if(aug <= 200){
-				this->_LP = aug;
-				_lastHeal = std::chrono::system_clock::now();
-				message ("Gardian got healded.");
-			}
-			
-    	}
+		int aug = this->_LP + 30; 
+		if(aug <= 200){ //check if it doesn't exceed the maximum life point of the guard
+			this->_LP = aug;
+			_lastHeal = std::chrono::system_clock::now(); //the most recent heal time is saved
+			message ("Gardian got healded.");
+		}
 	}
-	
 }
 
-bool Gardien::isAlive(){
+
+/**
+ * Fuction that checks if the gardian is alive
+ */
+bool Gardien::isAlive()
+{
     return this->alive;
 }
 
-void Gardien::update(){
-	increase_LP();
+/**
+ * Fuction that continually updates the state of the Gardian objects over time.
+ * 
+ */
+void Gardien::update()
+{
+	if(this->isAlive() == true)//check if we can increse the LP
+	{
+		this->increase_LP(); //increase the LP
+	}
 	
-	float angle_difference=see_chasseur();
+	float angle_difference=see_chasseur(); 
 	if ((-30<=angle_difference) && (angle_difference <=30)) 
 	{
 		this->_mode = 1; //this is the attack mode
 	}else{
-		this->_mode = 0;
+		this->_mode = 0; //this is the patrol mode
 	}
 
     timer+=1; 
@@ -117,36 +141,57 @@ void Gardien::update(){
 	}
 }
 
+
+/**
+ * Fuction that lauchs the fireball
+ * @param angle_vertical we can ignore this parameter for this project, always set to 0
+ */
 void Gardien::fire(int angle_vertical){
-    float theta = std::atan2((_l->_guards[0]->_x - _x),(_l->_guards[0]->_y - _y));
-	float angleF = (180 * theta) / M_PI;
+	
+    float theta = std::atan2((_l->_guards[0]->_x - _x),(_l->_guards[0]->_y - _y)); //the angle in radian
+	float angleF = (180 * theta) / M_PI; // the angle in degree
     
-    //if the gardien sees the hunter
-    //cout << (std::chrono::system_clock::now() -_lastFB).count() << "\n";
+	//the gardian can lauch the fireball every 3 seconds
+	//calculate the time elapsed since the last fireball
     std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - _lastFB;
-    if ((elapsed_seconds).count() > 3.0)
+	
+    if ((elapsed_seconds).count() > 3.0) //it has been more than 3 secondes
     {
-        if (((Chasseur*)(this->_l->_guards[0]))->isAlive()==true && isAlive() == true)
+		//if the chasseur is alive and the gardian that lauches the fireball is alive
+        if (((Chasseur*)(this->_l->_guards[0]))->isAlive()==true && this->isAlive() == true)
         {
-            _guard_fire -> play ();
-            _lastFB = std::chrono::system_clock::now();
-            _fb -> init (_x, _y, 10., angle_vertical, angleF);
+            _guard_fire -> play (); //play the sound
+            _lastFB = std::chrono::system_clock::now(); //redefine the last time a fireball was launched 
+
+			//lauch the fireball by giving the coordinates of the position of the gardian and the angle of the fireball.
+            _fb -> init (_x, _y, 10., angle_vertical, angleF); 
         }
     }
 }
 
+
+/**
+ * Fuction that calculates the hit probability of the gardian given the life point
+ * the less life points it has, the worse his shot
+ */
 double Gardien::hit_probability() {
 	int rest_LP = this->_LP;
 	// Calculate hit probability based on health and coefficient
-	//cout<<"rest_LP : " << rest_LP << "\n";
-	//cout<<"calcul : " << coefficient * 100/rest_LP << "\n";
-	return max(0.1, 1.0 - (COEFFICIENT * 100/rest_LP));
+	return COEFFICIENT * rest_LP;
 }
 
 
+/**
+ * Fuction that process how the lauched fireball work
+ * 
+ * @param dx changes of the fireball in the x axis
+ * @param dy changes of the fireball in the y axis
+ * 
+ * @return true if the fireball can move to the direction dx and dy, false otherwise(hit something)
+ */
 bool Gardien::process_fireball (float dx, float dy)
 {
-	// calculer la distance entre le gardien et le lieu de l'explosion.
+	//calculer la distance entre le gardien et le lieu de l'explosion.
 	float	x = (_x - _fb -> get_x ()) / Environnement::scale;
 	float	y = (_y - _fb -> get_y ()) / Environnement::scale;
 	float	dist2 = x*x + y*y;
@@ -160,107 +205,79 @@ bool Gardien::process_fireball (float dx, float dy)
 		return true;
 	}else{
 		// collision...
-		
-        float x_place = (this->_l->_guards[0]->_x - _fb -> get_x ())/ Environnement::scale;
-        float y_place = (this->_l->_guards[0]->_y - _fb -> get_y ())/ Environnement::scale;
 
 		//To give the hunter a chance, each guard has a probability of missing his target; 
 		//this probability depends on the guard's health: the less health points he has, 
 		//the worse his shot. The coefficient that relates the health of a guard to his ability to shoot 
 		//accurately is also a parameter of the program.
-
 		double probability = hit_probability();
-        double random = ((double) rand() / (RAND_MAX));
-		//cout<<"before Probability : " << probability << "\n";
-		//we get the gardien that is at (x,y) which means that it is hit by the fireball
-		//cout<<"Random : " << random << "\n";
-		//cout<<"Probability : " << probability << "\n";
-        if ((random < probability) &&  (((Chasseur*)(this->_l->_guards[0]))->isAlive() == true))
-        {
-			//cout<<"Random : " << random << "\n";
-			//cout<<"Probability : " << probability << "\n";
-            //message("Chasseur hit");
-            ((Chasseur*)(this->_l->_guards[0]))->decrease_LP_chasseur();
-            
-        }
+        
 
-        /*
-        //we get the gardien that is at (x,y) which means that it is hit by the fireball
-        if ((abs(x_place) <= 5) && (abs(y_place) <= 5) &&  (((Chasseur*)(this->_l->_guards[0]))->isAlive() == true))
-        {
-            //message("Chasseur hit");
-            ((Chasseur*)(this->_l->_guards[0]))->decrease_LP_chasseur();
-            
-        }
-		*/
+		//how close the fireball exploded to the chasseur
+		float x_place = (this->_l->_guards[0]->_x - _fb -> get_x ())/ Environnement::scale;
+		float y_place = (this->_l->_guards[0]->_y - _fb -> get_y ())/ Environnement::scale;
 		
+		//it the fireball exploded close enough to the chasseur then chasseur lost its life point
+		//the "closeness" is caculated based on the precision of the gardian's aim and its life point.
+		if ((abs(x_place) <= 1*probability) && (abs(y_place) <= 1*probability) &&  (((Gardien*)(this->_l->_guards[0]))->isAlive() == true))
+		{
+			((Chasseur*)(this->_l->_guards[0]))->decrease_LP_chasseur(); 	
+		}
 	}
 	// calculer la distance maximum en ligne droite.
 	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
 	_wall_hit -> play (1. - dist2/dmax2);
-	//message ("Booom...");
+	message ("Booom...");
 	return false;
 }
 
 
+/**
+ * Fuction that process how the lauched fireball work
+ * 
+ * @param dx changes of the position of the gardian in the x axis
+ * @param dy changes of the position of the gardian in the y axis
+ * 
+ * @return true if the it can move to the direction dx and dy, false otherwise(blocked by something)
+ */
 bool Gardien::move (double dx, double dy){
-	//TODO: if we set the speed parameter to scale/1 this works and the guards dont run into each other
-	//in any other case (if we reduce the speed) we will run through other guards. Find out why and fix
-	//if we have time
-
+	
+	//the new position in x axis
 	int new_x=(_x+dx*speed)/Environnement::scale;
+	//the new position in y axis
+	int new_y=(_y+dy*speed)/Environnement::scale;
+
 	//however, this is going to be the field that I need to check
 	int checkbox_x_a = (_x+dx*speed+((dx>=0)-(dx<0))*hitbox)/Environnement::scale;
-	//int checkbox_x_b = (_x+dx*speed+dx/std::abs(dx)*hitbox)/Environnement::scale;
-	
-	//std::cout<<"old x: "<<_x/Environnement::scale<<std::endl;
-	//std::cout<<"new x: "<<new_x<<std::endl;
-	int new_y=(_y+dy*speed)/Environnement::scale;
-	//int checkbox_y = (_y+dy*Environnement::scale)/Environnement::scale;
 	int checkbox_y_a = (_y+dy*speed+((dy>=0)-(dy<0))*hitbox)/Environnement::scale;
-	//std::cout<<"True new x and y: "<<
-	//std::cout<<"Rounded true movement: ("<<new_x<<","<<new_y<<")"<<std::endl;
-	//std::cout<<"Checkbox: ("<<checkbox_x<<","<<checkbox_y<<")"<<std::endl;
 
-	
-	//std::cout<<"new y: "<<new_y<<std::endl;
 	bool empty=_l -> data ((int)(new_x),(int)(new_y));
 	bool empty_checkbox=_l -> data ((int)(checkbox_x_a),(int)(checkbox_y_a));
 
-	//std::cout<<"Element in front? "<<empty<<"  Element in Checkbox? "<<empty_checkbox<<std::endl;
 	bool changed_x= new_x != (int)(_x/Environnement::scale); 
 	bool changed_y= new_y != (int)(_y/Environnement::scale);
 
 	bool changed_checkbox_x = checkbox_x_a !=(int)(_x/Environnement::scale); 
 	bool changed_checkbox_y = checkbox_y_a !=(int)(_y/Environnement::scale); 
-	//std::cout<<"Changed x or y? "<<((empty!=0) and (changed_x or changed_y))<<std::endl;
-	//std::cout<<"Changed x"
+	
 	if ((new_x<0) || (new_y<0) || (new_y >= _l->height()) || (new_x >= _l->width())){
-		//std::cout<<"new x: "<<new_x<<"new y: "<<new_y<<std::endl;
-
 		return false;
 	}
+
 	//if something is in the way, check if it is us (no change in x or y, we are moving within a field)
 	//If it is us in the way -> just move, if not  
 	if((empty!=0)){
 		
 		if ((changed_x or changed_y)){
-			//std::cout<<"Checkox Alert!"<<std::endl;
-			//std::cout<<checkbox_x_a<<std::endl;
 			if ((std::abs(dx)>0.01) or (std::abs(dy)>0.01)){
-				//move(dx/2, dy/2);
-				//std::cout<<"Somethings in the way at: ("<<new_x<<","<<new_y<<")"<<std::endl;
 
-			
 			//Change angle and dont move forward
 			std::mt19937 gen(rd()); // seed the generator
 			std::uniform_int_distribution<> wall_distr(-90, 90);
 			int wall_delta=wall_distr(gen);
 
-
 			if((_angle+wall_delta)<=0){
-				//std::cout<<"Here: original angle: "<<_angle<<"  new angle: "<<wall_delta<<std::endl;
 				_angle+=abs(wall_delta);
 			}
 			else if((_angle+wall_delta)>=360){
@@ -269,44 +286,46 @@ bool Gardien::move (double dx, double dy){
 			else{
 				_angle+=wall_delta; //_angle+90; //run into wall then change direction
 			}
-			//_angle=-180;
 			return false;
 			}
 			
 		}
 	}
 	if ((changed_x or changed_y)){
-		//std::cout<<"We have left a certain point in the matrix!"<<std::endl;
-		//std::cout<<"Set 1 to: ("<<(int) new_x<<","<<(int) new_y<<")"<<std::endl;
 		((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, 1); //update the new position
 		((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
 	}
-	_x+=dx*speed; ///Environnement::scale;
-	_y+=dy*speed; ///Environnement::scale;
+	_x+=dx*speed; 
+	_y+=dy*speed; 
 	return true;
 }
 
 
-
+/**
+ * Fuction that calculates the angle of the gardian
+ * 
+ * @return the angle of the gardian
+ */
 float Gardien::see_chasseur(){
+
+	//get the chasseur
 	Mover* hunter = this->_l->_guards[0];
-	int hunterX = hunter->_x / Environnement::scale;
-	int hunterY = hunter->_y / Environnement::scale;
-	float monsterX = this->_x / Environnement::scale;
-	float monsterY = this->_y / Environnement::scale;
-	// Calculate the angle between the monster and the hunter
-	double dx = hunterX - monsterX;
-	double dy = hunterY - monsterY;
+	
+	int hunterX = hunter->_x / Environnement::scale; //the x-axis position of the hunter
+	int hunterY = hunter->_y / Environnement::scale; //the y-axis position of the hunter
+	float gardianX = this->_x / Environnement::scale; //the x-axis position of the gardian
+	float gardianY = this->_y / Environnement::scale; //the x-axis position of the gardian
+
+	//distance between chasseur and gardian
+	double dx = hunterX - gardianX;
+	double dy = hunterY - gardianY;
+	// Calculate the angle between the chasseur and the chasseur in degree
 	double angleToNormal = atan2(dy, dx) * 180 / M_PI;
-	//std::cout<<"Angle to Hunter: "<<angleToHunter<<std::endl; 
-	//double angle_diff = std::abs(angleToHunter-_angle-90.0);
-	//angleToHunter -= 90.0;
-	// std::cout<<"Angle to Hunter: "<<angleToHunter<<std::endl; 
-	//std::cout<<"Angle: "<<_angle<<std::endl;
+	
+	//
 	double angleToNormal2 =  angleToNormal - 90 ;
+
 	// Normalize angleToHunter to be between 0 and 360 degrees
-	//if (angleToHunter < 0)
-	//	angleToHunter += 360;
     if (angleToNormal2 <= -270) {
       angleToNormal2 +=360;
     }
@@ -323,7 +342,11 @@ float Gardien::see_chasseur(){
 
 
 
-
+/**
+ * Fuction that check if there are obstacles blocking the gardians
+ * 
+ * @return true if there are obstacles, false otherwise
+ */
 bool Gardien::check_obstacles(){
 	//we need to store the points that we cross in a vector
 	std::vector<std::pair<int, int>> points;
