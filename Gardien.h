@@ -22,10 +22,10 @@ private :
 	bool alive; //true if the guard is alive
 	std::chrono::time_point<std::chrono::system_clock> _lastFB; //time since last fireball has been sent out
 	std::chrono::time_point<std::chrono::system_clock> _lastHeal; //time since last increase of LP has been performed
-	std::random_device rd; // obtain a random number from hardware
+	std::random_device _rd; // obtain a random number from hardware
 	int _mode;//0 is patrol mode and 1 is attack mode
-	int update_counter; //to count and not update movement at every step
-	int speed;  //speed parameter detemining what fraction of Environment::scale the guards can progress in one frame
+	int _update_counter; //to count and not update movement at every step
+	int _speed;  //speed parameter detemining what fraction of Environment::scale the guards can progress in one frame
 	//float hitbox; // hitbox parameter with which we wanted to fix the aesthetic of the guards hitting objects 
 
 public:

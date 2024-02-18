@@ -21,9 +21,9 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 		_wall_hit = new Sound ("sons/hit_wall.wav");
 
 	this->_LP = HEALTH_C;
-	this->alive = true;
+	this->_alive = true;
 	this->_lastHeal_C = std::chrono::system_clock::now();
-	this->previousFireballExploded = true;
+	this->_previousFireballExploded = true;
 }
 
 
@@ -185,7 +185,7 @@ bool Chasseur::process_fireball (float dx, float dy)
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
 	_wall_hit -> play (1. - dist2/dmax2);
 	message ("Booom...");
-	this->previousFireballExploded = true;
+	this->_previousFireballExploded = true;
 	
 	return false;
 
@@ -198,7 +198,7 @@ bool Chasseur::process_fireball (float dx, float dy)
  */
 void Chasseur::fire (int angle_vertical)
 {
-	if (!this->previousFireballExploded) {
+	if (!this->_previousFireballExploded) {
         // Previous fireball hasn't exploded yet, so cannot send a new fireball
         return;
     }
@@ -206,7 +206,7 @@ void Chasseur::fire (int angle_vertical)
 	_hunter_fire -> play ();
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
 				 /* angles de vis�e */ angle_vertical, _angle);
-	this->previousFireballExploded = false;
+	this->_previousFireballExploded = false;
 }
 
 /*
@@ -227,5 +227,5 @@ void Chasseur::right_click (bool shift, bool control)
  * Fuction that checks if the guard is alive
  */
 bool Chasseur::isAlive(){
-	return this->alive;
+	return this->_alive;
 }

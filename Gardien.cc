@@ -34,8 +34,8 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
 	this->alive = true;
     this->_lastFB = std::chrono::system_clock::now();
 	this->_lastHeal = std::chrono::system_clock::now();
-    this->update_counter=0; //to count and not update movement at every step
-	this->speed=Environnement::scale/10; //Default setting for the speed value, can be adjusted to machine
+    this->_update_counter=0; //to count and not update movement at every step
+	this->_speed=Environnement::scale/10; //Default setting for the speed value, can be adjusted to machine
 	//this->hitbox=Environnement::scale/2; //hitbox value 
 	this->_mode=0; //patrol mode by default
 }
@@ -239,9 +239,9 @@ bool Gardien::process_fireball (float dx, float dy)
 bool Gardien::move (double dx, double dy){
 	
 	//the new position in x axis
-	int new_x=(_x+dx*speed)/Environnement::scale;
+	int new_x=(_x+dx*_speed)/Environnement::scale;
 	//the new position in y axis
-	int new_y=(_y+dy*speed)/Environnement::scale;
+	int new_y=(_y+dy*_speed)/Environnement::scale;
 
 	//We tried to implement a collider that is bigger than the speed parameters, however this did not work in the ends
 	//int checkbox_x_a = (_x+dx*speed+((dx>=0)-(dx<0))*hitbox)/Environnement::scale;
@@ -270,7 +270,7 @@ bool Gardien::move (double dx, double dy){
 			if ((std::abs(dx)>0.01) or (std::abs(dy)>0.01)){
 
 			//Change angle and dont move forward
-			std::mt19937 gen(rd());
+			std::mt19937 gen(_rd());
 			std::uniform_int_distribution<> wall_distr(-90, 90);
 			int wall_delta=wall_distr(gen);
 
@@ -294,8 +294,8 @@ bool Gardien::move (double dx, double dy){
 		((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
 	}
 	//Displace the guard
-	_x+=dx*speed; 
-	_y+=dy*speed; 
+	_x+=dx*_speed; 
+	_y+=dy*_speed; 
 	return true;
 }
 
