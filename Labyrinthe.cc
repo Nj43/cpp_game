@@ -122,7 +122,7 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 				
 				while ((pos = line.find('+', pos)) != std::string::npos) {
 				    plusIndices.push_back({lineCounter, static_cast<int>(pos)});
-				    if(line[pos-1] == '-' || line[pos-1] == '+' ){
+				    if(line[pos-1] == '-' || line[pos-1] == '+' || line[pos-1] == 'a' || line[pos-1] == 'b'){
 						Walls.push_back({plusIndices[plusIndex-1], plusIndices[plusIndex]});
 				    }
 				    pos++;
@@ -173,7 +173,7 @@ std::vector<std::vector<std::vector<std::vector<int>>>> createLabyrinth(char* fi
 		while ((columnPos = transposedMap[columnIndex].find('+', columnPos)) != std::string::npos) {
 			columnPlusIndices.push_back({static_cast<int>(columnPos), static_cast<int>(columnIndex)});
 		    //we need to check if the next character after a plus is a | symbol, if yes, then there is another wall coming
-		    if(transposedMap[columnIndex][columnPos-1] == '|' || transposedMap[columnIndex][columnPos-1] == '+'){
+		    if(transposedMap[columnIndex][columnPos-1] == '|' || transposedMap[columnIndex][columnPos-1] == '+'||transposedMap[columnIndex][columnPos-1] == 'a'||transposedMap[columnIndex][columnPos-1] == 'b'){
 				Walls.push_back({columnPlusIndices[columnPlusIndex-2], columnPlusIndices[columnPlusIndex-1]});
 		    }
 		    columnPos++;
