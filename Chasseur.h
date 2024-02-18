@@ -24,6 +24,7 @@ private:
 	bool alive; //true if the hunter is alive
 	int _LP; //life point of the hunter
 	std::chrono::time_point<std::chrono::system_clock> _lastHeal_C;
+	bool previousFireballExploded;
 public:
 	// les sons.
 	static Sound*	_hunter_fire;	// bruit de l'arme du chasseur.

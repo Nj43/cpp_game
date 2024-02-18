@@ -23,6 +23,7 @@ Chasseur::Chasseur (Labyrinthe* l) : Mover (100, 80, l, 0)
 	this->_LP = HEALTH_C;
 	this->alive = true;
 	this->_lastHeal_C = std::chrono::system_clock::now();
+	this->previousFireballExploded = true;
 }
 
 
@@ -144,6 +145,7 @@ double Chasseur::hit_probability() {
  */
 bool Chasseur::process_fireball (float dx, float dy)
 {
+	
 	// calculer la distance entre le chasseur et le lieu de l'explosion.
 	float	x = (_x - _fb -> get_x ()) / Environnement::scale;
 	float	y = (_y - _fb -> get_y ()) / Environnement::scale;
@@ -182,7 +184,9 @@ bool Chasseur::process_fireball (float dx, float dy)
 	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
 	_wall_hit -> play (1. - dist2/dmax2);
-	//message ("Booom...");
+	message ("Booom...");
+	this->previousFireballExploded = true;
+	
 	return false;
 
 
@@ -194,10 +198,15 @@ bool Chasseur::process_fireball (float dx, float dy)
  */
 void Chasseur::fire (int angle_vertical)
 {
+	if (!this->previousFireballExploded) {
+        // Previous fireball hasn't exploded yet, so cannot send a new fireball
+        return;
+    }
 	message ("Woooshh...");
 	_hunter_fire -> play ();
 	_fb -> init (/* position initiale de la boule */ _x, _y, 10.,
 				 /* angles de vis�e */ angle_vertical, _angle);
+	this->previousFireballExploded = false;
 }
 
 /*

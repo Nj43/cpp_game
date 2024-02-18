@@ -28,7 +28,6 @@ private :
 	int speed;  //speed parameter detemining what fraction of Environment::scale the guards can progress in one frame
 	//float hitbox; // hitbox parameter with which we wanted to fix the aesthetic of the guards hitting objects 
 
-
 public:
 	
 	Gardien (Labyrinthe* l, const char* modele, int LP);

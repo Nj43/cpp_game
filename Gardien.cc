@@ -219,7 +219,8 @@ bool Gardien::process_fireball (float dx, float dy)
 	float	dmax2 = (_l -> width ())*(_l -> width ()) + (_l -> height ())*(_l -> height ());
 	// faire exploser la boule de feu avec un bruit fonction de la distance.
 	_wall_hit -> play (1. - dist2/dmax2);
-	message ("Booom...");
+	//message ("Booom...");
+	
 	return false;
 }
 
