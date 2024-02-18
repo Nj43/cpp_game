@@ -37,12 +37,12 @@ void Chasseur::decrease_LP_chasseur(){
 
 bool Chasseur::move_aux (double dx, double dy)
 {
-	update();
-	if (EMPTY == _l -> data ((int)((_x + dx) / Environnement::scale),
-							 (int)((_y + dy) / Environnement::scale)))
+	if (EMPTY == _l -> data ((int)((_x + dx) / Environnement::scale), (int)((_y + dy) / Environnement::scale)) or 2 == _l -> data ((int)((_x + dx) / Environnement::scale), (int)((_y + dy) / Environnement::scale)))
 	{
+    ((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
 		_x += dx;
 		_y += dy;
+    ((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 2);
 		return true;
 	}
 	return false;

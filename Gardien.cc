@@ -82,26 +82,19 @@ void Gardien::update(){
     timer+=1; 
 	update_counter+=1;
 	fps_counter+=1;
-	// Generate random movement
 	if (update_counter==1 && this->isAlive() == true){
-		float rad= 1; //*Environnement::scale;
+		float rad= 1;
 
 		double dx=-sin((float)((float)_angle/180)*M_PI) * rad; //needs to be "-" because of our coordinate system 
 		double dy=cos((float)((float)_angle/180)*M_PI) * rad;
 
 		if (this->_mode == 1){
-			//std::cout<<"Peakaboo! "<<std::endl;
 			bool obstacles=check_obstacles();
-			//std::cout<<"Obstacles? "<< obstacles <<std::endl;
 			if (obstacles==1){
 				_angle += angle_difference;
-				//std::cout<<"No Obstacles! "<<std::endl;
-				//std::cout<<"Peakaboo! "<<std::endl;
 				this->fire(0);
 			}	
 		}
-		
-		//assert ((_angle<=360) and (_angle>=0));
 		move(dx, dy);
 
 		update_counter=0;	
@@ -165,8 +158,8 @@ bool Gardien::process_fireball (float dx, float dy)
         double random = ((double) rand() / (RAND_MAX));
 		//cout<<"before Probability : " << probability << "\n";
 		//we get the gardien that is at (x,y) which means that it is hit by the fireball
-		cout<<"Random : " << random << "\n";
-		cout<<"Probability : " << probability << "\n";
+		//cout<<"Random : " << random << "\n";
+		//cout<<"Probability : " << probability << "\n";
         if ((random < probability) &&  (((Chasseur*)(this->_l->_guards[0]))->isAlive() == true))
         {
 			//cout<<"Random : " << random << "\n";
@@ -202,7 +195,6 @@ bool Gardien::move (double dx, double dy){
 	//if we have time
 
 	int new_x=(_x+dx*speed)/Environnement::scale;
-
 	//however, this is going to be the field that I need to check
 	int checkbox_x_a = (_x+dx*speed+((dx>=0)-(dx<0))*hitbox)/Environnement::scale;
 	//int checkbox_x_b = (_x+dx*speed+dx/std::abs(dx)*hitbox)/Environnement::scale;
@@ -236,9 +228,9 @@ bool Gardien::move (double dx, double dy){
 	}
 	//if something is in the way, check if it is us (no change in x or y, we are moving within a field)
 	//If it is us in the way -> just move, if not  
-	if((empty_checkbox!=0)){
+	if((empty!=0)){
 		
-		if ((changed_checkbox_x or changed_checkbox_y)){
+		if ((changed_x or changed_y)){
 			//std::cout<<"Checkox Alert!"<<std::endl;
 			//std::cout<<checkbox_x_a<<std::endl;
 			if ((std::abs(dx)>0.01) or (std::abs(dy)>0.01)){
