@@ -1,3 +1,11 @@
+/**
+ * The Chassuer class inherits from the Mover class and is responsible for the logic of the hunter. It specifies firing 
+ * functionalities (hit probability, processing a fireball etc). The death logic of the hunter is defined in the decrease_LP_chasseur
+ * and increase_LP_chasseur functions. If the hunter touches the treasure the game is over. This functionality is implemented in the
+ * win_game function.
+ * 
+ */
+
 #ifndef CHASSEUR_H
 #define CHASSEUR_H
 

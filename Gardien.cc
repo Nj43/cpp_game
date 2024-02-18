@@ -35,8 +35,8 @@ Gardien::Gardien(Labyrinthe* l, const char* modele, int _LP) : Mover (120, 80, l
     this->_lastFB = std::chrono::system_clock::now();
 	this->_lastHeal = std::chrono::system_clock::now();
     this->update_counter=0; //to count and not update movement at every step
-	this->speed=Environnement::scale/10;
-	this->hitbox=Environnement::scale/2;
+	this->speed=Environnement::scale/10; //Default setting for the speed value, can be adjusted to machine
+	//this->hitbox=Environnement::scale/2; //hitbox value 
 	this->_mode=0; //patrol mode by default
 }
 
@@ -101,27 +101,29 @@ bool Gardien::isAlive()
  * 
  */
 void Gardien::update()
-{
-	if(this->isAlive() == true)//check if we can increse the LP
-	{
-		this->increase_LP(); //increase the LP
-	}
-	
+{	
 	float angle_difference=see_chasseur(); 
-	if (this->isAlive() == true){
+
+	if (this->isAlive() == true){ //the guard can only move if he is alive
+		this->increase_LP(); //increase the LP 
 		float rad= 1;
 
+		//calculate the dx and dy values for a given angle
 		double dx=-sin((float)((float)_angle/180)*M_PI) * rad; //needs to be "-" because of our coordinate system 
 		double dy=cos((float)((float)_angle/180)*M_PI) * rad;
 
+		//Check if the hunter is in the cone of vision of the guard (-30, +30) form _angle 
 		if ((-30<=angle_difference) && (angle_difference <=30)){
 			bool obstacles=check_obstacles();
+			//If the hunter is in the cone of vision, we need to check if there are any obstacles between the guard and the hunter
 			if (obstacles==1){
+				//If the vision is clear, follow the hunter by adapting the angle value, switch into attack mode and fire
 				_angle += angle_difference;
 				this->fire(0);
 				this->_mode = 1;
 			}
 			else{
+				//If there is something blocking the view, stay in patrol state
 				this->_mode = 0;
 			}	
 		}
@@ -223,7 +225,10 @@ bool Gardien::process_fireball (float dx, float dy)
 
 
 /**
- * Fuction that process how the launched fireball works
+ * Fuction that implements the movement of the guard with a given angle. The change in x and y direction
+ * with respect to the angle has been computed in the update function. The move function checks, if there 
+ * is something in the way (and possibly change the angle randomly if the guard hits a wall). If the guard
+ * leaves a field in the matrix, it is updated
  * 
  * @param dx changes of the position of the guard in the x axis
  * @param dy changes of the position of the guard in the y axis
@@ -237,19 +242,20 @@ bool Gardien::move (double dx, double dy){
 	//the new position in y axis
 	int new_y=(_y+dy*speed)/Environnement::scale;
 
-	//We tried to implement a collider that is bigger than the 
+	//We tried to implement a collider that is bigger than the speed parameters, however this did not work in the ends
 	//int checkbox_x_a = (_x+dx*speed+((dx>=0)-(dx<0))*hitbox)/Environnement::scale;
 	//int checkbox_y_a = (_y+dy*speed+((dy>=0)-(dy<0))*hitbox)/Environnement::scale;
 
 	bool empty=_l -> data ((int)(new_x),(int)(new_y));
 	//bool empty_checkbox=_l -> data ((int)(checkbox_x_a),(int)(checkbox_y_a));
 
-	bool changed_x= new_x != (int)(_x/Environnement::scale); 
-	bool changed_y= new_y != (int)(_y/Environnement::scale);
+	bool changed_x= new_x != (int)(_x/Environnement::scale); //check if rounded _x and new_x positions are the same 
+	bool changed_y= new_y != (int)(_y/Environnement::scale); //check if rounded _y and new_y positions are the same
 
 	//bool changed_checkbox_x = checkbox_x_a !=(int)(_x/Environnement::scale); 
 	//bool changed_checkbox_y = checkbox_y_a !=(int)(_y/Environnement::scale); 
 	
+	//If the guard wants to move outside of the playing field, return false and do not move the guard
 	if ((new_x<0) || (new_y<0) || (new_y >= _l->height()) || (new_x >= _l->width())){
 		return false;
 	}
@@ -257,7 +263,8 @@ bool Gardien::move (double dx, double dy){
 	//if something is in the way, check if it is us (no change in x or y, we are moving within a field)
 	//If it is us in the way -> just move, if not  
 	if((empty!=0)){
-		
+		//If we switch the field in our matrix, and the field is not empty, that means, there is an obstacle.
+		//Run into change the angle at random and return.
 		if ((changed_x or changed_y)){
 			if ((std::abs(dx)>0.01) or (std::abs(dy)>0.01)){
 
@@ -280,10 +287,12 @@ bool Gardien::move (double dx, double dy){
 			
 		}
 	}
+	//If we dont have any obstacle in the way, and we chang the field in the matrix, update the matrix
 	if ((changed_x or changed_y)){
 		((Labyrinthe *) _l)->set_data ((int) new_x, (int) new_y, 1); //update the new position
 		((Labyrinthe *) _l)->set_data ((int) (_x/Environnement::scale), (int) (_y/Environnement::scale), 0);
 	}
+	//Displace the guard
 	_x+=dx*speed; 
 	_y+=dy*speed; 
 	return true;
@@ -291,15 +300,14 @@ bool Gardien::move (double dx, double dy){
 
 
 /**
- * Fuction that calculates the angle of the guard
+ * Fuction that calculates the difference between the angle of the guard and the angle between 
+ * the guard and the hunter. The returned value is evaluated in the update function.  
  * 
  * @return the angle difference between guards angle and the hunter in relation to guard
  */
 float Gardien::see_chasseur(){
-
-	//get the hunter
+	//get the hunter's position
 	Mover* hunter = this->_l->_guards[0];
-	
 	int hunterX = hunter->_x / Environnement::scale; //the x-axis position of the hunter
 	int hunterY = hunter->_y / Environnement::scale; //the y-axis position of the hunter
 	float gardianX = this->_x / Environnement::scale; //the x-axis position of the guard
@@ -311,14 +319,15 @@ float Gardien::see_chasseur(){
 	// Calculate the angle between the hunter and the hunter in degree
 	double angleToNormal = atan2(dy, dx) * 180 / M_PI;
 	
-	//
+	//Turn the angle by 90 degrees to solve the 90 degree offset of the result in atan2
 	double angleToNormal2 =  angleToNormal - 90 ;
 
 	// Normalize angleToHunter to be between 0 and 360 degrees
     if (angleToNormal2 <= -270) {
       angleToNormal2 +=360;
     }
-	 
+	
+	//Normalize the angle_diff to be between -180 and 180
     double angle_diff = angleToNormal2 - _angle;
     while (angle_diff < -180) {
       angle_diff += 360;
@@ -363,8 +372,8 @@ bool Gardien::check_obstacles(){
 
 	//We also introduce a variable which will determine, whether we do a 
 	//horizontal or a vertical step. If the error term is positive, that means
-	// that the dx variable is bigger than the dy variable, which means
-	// that we need to increment in vertical direction. Otherwise, we increment in 
+	//that the dx variable is bigger than the dy variable, which means
+	//that we need to increment in vertical direction. Otherwise, we increment in 
 	//horizontal direction
 
 	int err=dx-dy;
@@ -386,7 +395,7 @@ bool Gardien::check_obstacles(){
 		}
 		counter+=1;
 	}
-	points.push_back({hunterX, hunterY});
-	//Now that we have collected all points, we need to check if the 
+	//If we performed the iterations over all the fields in the matrix between us and the hunter
+	//and we don't hit an obstacle, we can see the hunter and return true. 
 	return true;
 	}

@@ -30,22 +30,36 @@ Environnement* Environnement::init (char* filename)
 #define	LAB_HEIGHT	100
 #define HEALTH_G 200
 
+/**
+ * Function to output the x coordinate of the treasure. 
+ *
+ * @returns x coordinate of the treasure
+ */
 int Labyrinthe::getTresorX(){
 
 	return _treasor._x;
 }
 
+/**
+ * Function to output the y coordinate of the treasure. 
+ *
+ * @returns y coordinate of the treasure
+ */
 int Labyrinthe::getTresorY(){
 
 	return _treasor._y;
 }
 
 /**
- * Function to transpose a matrix
- * @param filename name of the file where the labyrinth map is stored 
+ * Function to transpose a matrix. Using the height and width values provided to the function, it will iterate over
+ * the rows and columns and transpose the matrix element by element. It will store the resulting matrix in a new vector
+ * and return it. 
+ * 
+ * @param matrix matrix that we want to transpose which contains vectors of strings 
+ * @param height height value of the original matrix
+ * @param width width value of the original matrix
  *
- * @returns vector containing all the objects of the game and their respective positions (start and end positions for walls
- * and pictures)
+ * @returns transposed matrix 
  */
 
 std::vector<std::string> transposeMatrix(const std::vector<std::string>& matrix, int height, int width) {
